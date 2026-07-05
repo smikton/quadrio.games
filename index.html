@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Quadrio</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext x='32' y='47' text-anchor='middle' font-family='Helvetica Neue,Helvetica,Arial,sans-serif' font-size='52' font-weight='700' fill='%23141414'%3EQ%3C/text%3E%3C/svg%3E">
 <style>
@@ -17,12 +18,33 @@
   --dup:#A87614;
   --cellhover:#FAFAFA; --text2:#5C5C5C;
   --s1:8px; --s2:16px; --s3:24px; --s4:32px; --s5:48px;
-  --flanktop:88px; /* fixed anchor: header letters rest ON the board top line */
+  --flanktop:95px; /* fixed anchor: header letters rest ON the board top line */
 }
 body.dark{
   --bg:#121212; --ink:#EBEBEB; --mut:#9F9F9F; --faint:#6A6A6A; --hair:#2B2B2B;
   --ok:#43A56F; --bad:#DA6355; --dup:#C79A3B;
   --cellhover:#1B1B1B; --text2:#B9B9B9;
+}
+body.matrix{
+  --bg:#060A06; --ink:#3BF07A; --mut:#22A854; --faint:#177238; --hair:#0E3B1F;
+  --ok:#3BF07A; --bad:#FF6A55; --dup:#D6B93C;
+  --cellhover:#0A140C; --text2:#2FCB66;
+}
+body.clouds{
+  --bg:#C9E6FB; --ink:#1E3A5F; --mut:#48709B; --faint:#7FA6C9; --hair:#9EC6E8;
+  --ok:#1F7A47; --bad:#C43D2F; --dup:#A87F1F;
+  --cellhover:#DDF0FF; --text2:#3A6089;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='22'%3E%3Cg fill='%23FFFFFF'%3E%3Crect x='6' y='8' width='14' height='4'/%3E%3Crect x='8' y='6' width='8' height='2'/%3E%3Crect x='10' y='4' width='4' height='2'/%3E%3Crect x='4' y='10' width='18' height='2'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:190px auto;
+  image-rendering:pixelated;
+}
+body.candy{
+  --bg:#FBD9E8; --ink:#8A1D52; --mut:#B05585; --faint:#D392B4; --hair:#F0AFCB;
+  --ok:#0F9D58; --bad:#D6304A; --dup:#B8860B;
+  --cellhover:#FCE7F1; --text2:#A03B6F;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='22'%3E%3Cg fill='%23FFFFFF'%3E%3Crect x='6' y='8' width='14' height='4'/%3E%3Crect x='8' y='6' width='8' height='2'/%3E%3Crect x='10' y='4' width='4' height='2'/%3E%3Crect x='4' y='10' width='18' height='2'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:190px auto;
+  image-rendering:pixelated;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 ::selection{background:var(--ink);color:var(--bg)}
@@ -58,7 +80,14 @@ body{
 #coffee svg path,#claude svg path{stroke:currentColor;transition:stroke .15s ease}
 #coffee:hover svg,#coffee:hover svg path,#claude:hover svg,#claude:hover svg path,
 #coffee:focus-visible svg,#coffee:focus-visible svg path,#claude:focus-visible svg,#claude:focus-visible svg path{stroke:var(--ink)}
-#claude{left:50px;border:none;background:none;padding:0;cursor:pointer;font-family:inherit;letter-spacing:0;text-transform:none}
+#claude{left:50px}
+#coffee,#claude{border:none;background:none;padding:0;cursor:pointer;font-family:inherit;letter-spacing:0;text-transform:none;color:var(--mut)}
+#coffee svg *,#claude svg *{stroke:currentColor}
+#coffee svg path{transition:fill .15s ease,stroke .15s ease}
+#coffee:hover svg path:nth-child(1),#coffee:focus-visible svg path:nth-child(1){fill:var(--ink)}
+#coffee:hover svg path:nth-child(2),#coffee:hover svg path:nth-child(3),#coffee:hover svg path:nth-child(4),
+#coffee:focus-visible svg path:nth-child(2),#coffee:focus-visible svg path:nth-child(3),#coffee:focus-visible svg path:nth-child(4){stroke:var(--bg)}
+
 #coffee svg path:first-of-type{fill:none;transition:fill .15s ease}
 #coffee:hover svg path:first-of-type,#coffee:focus-visible svg path:first-of-type{fill:var(--ink)}
 #coffee::after,#claude::after{
@@ -90,8 +119,8 @@ main{
 }
 h1{
   white-space:nowrap;width:0;min-width:100%; /* tracked wordmark may not widen the column */
-  font-size:clamp(22px,3vw,30px);font-weight:700;
-  letter-spacing:.26em;padding-left:.26em; /* optical centering of tracked type */
+  font-size:clamp(24px,3.6vw,36px);font-weight:700; /* masthead: ink spans the board, edge to edge */
+  letter-spacing:.26em;margin-left:-2px; /* optical: ink centered (trailing tracking + side bearings measured out) */
   text-transform:uppercase;text-align:center;
   margin-bottom:8px; /* grouped: title+instructions read as one unit above the board */
 }
@@ -137,6 +166,7 @@ h1{
   border-radius:0;
   transition:color .15s ease,border-color .4s ease,background .15s ease;
 }
+.cell{background:var(--bg)}
 .cell:hover{background:var(--cellhover)}
 .cell:focus{outline:none;box-shadow:inset 0 0 0 2px var(--ink);z-index:2;position:relative;background:var(--bg)}
 .cell.dupword{color:var(--dup)}
@@ -229,7 +259,17 @@ button.textbtn:hover{background:none;color:var(--bad)}
 .squares h2{white-space:nowrap;margin-bottom:var(--s1)}
 .squares h2 .count{color:var(--faint);font-weight:400}
 .statsrow{display:flex;justify-content:flex-start;align-items:baseline;margin-bottom:var(--s1);min-height:14px;position:relative}
-.statsrow .textbtn{position:absolute;left:86px} /* CLEAR registers on the archive's second column */
+.wipezone{position:absolute;left:86px;display:flex;gap:12px} /* registers on the archive's second column */
+#wipebtn{position:relative}
+#wipebtn[data-tip]::after{
+  content:attr(data-tip);
+  position:absolute;left:0;bottom:calc(100% + 6px);
+  background:var(--ink);color:var(--bg);
+  font-size:10px;letter-spacing:.04em;line-height:1;font-weight:400;text-transform:none;
+  padding:6px 10px;white-space:nowrap;
+  opacity:0;pointer-events:none;transition:opacity .12s ease;z-index:5;
+}
+#wipebtn[data-tip]:hover::after{opacity:1}
 .statsrow .textbtn{margin-left:0}
 .squarestats{
   font-size:10px;color:var(--mut);letter-spacing:.18em;text-transform:uppercase;
@@ -245,7 +285,8 @@ button.textbtn:hover{background:none;color:var(--bad)}
   align-content:start;
 }
 .archive{display:flex;align-items:center;gap:var(--s1)}
-.pgcol{display:flex;align-items:center;gap:2px;position:relative;top:-8px} /* horizontal cluster, centered on the mini grids */
+.pgcol{display:flex;flex-direction:column;align-items:center;gap:3px;position:relative;top:-8px}
+.pgrow{display:flex;align-items:center;gap:2px}
 button.pg{
   border:none;background:none;padding:0 2px;
   height:22px;display:inline-flex;align-items:center;justify-content:center;
@@ -253,6 +294,7 @@ button.pg{
   color:var(--mut);cursor:pointer;font-family:inherit;
 }
 button.pg.pgfast{font-size:12px}
+#pgnum{font-size:10px;font-weight:500;color:var(--mut);font-variant-numeric:tabular-nums;min-width:26px;text-align:center;line-height:14px}
 button.pg:disabled{color:var(--hair);cursor:default}
 button.pg:disabled:hover{color:var(--hair)}
 button.pg:hover{background:none;color:var(--ink)}
@@ -266,6 +308,21 @@ button.pg:hover{background:none;color:var(--ink)}
 }
 .mini .c:last-child{border-right:0}
 .mini .r:last-child .c{border-bottom:0}
+.solve{position:relative;padding:8px 8px 0 0;margin:-8px -8px 0 0} /* invisible shoulder: the corner X lives fully inside this box */
+.solvedel{
+  position:absolute;top:0;right:0; /* 16px box inside the shoulder: X center = mini's top-right corner */
+  width:16px;height:16px;
+  display:flex;align-items:center;justify-content:center;
+  border:0;background:none;color:var(--bad);
+  font-size:12px;font-weight:600;line-height:1;padding:0;cursor:pointer;font-family:inherit;
+  opacity:0;transition:opacity .12s ease,transform .12s ease;
+}
+.solve:hover .solvedel,.solvedel:focus-visible{opacity:1}
+.solvedel:hover,.solvedel:focus-visible{opacity:1;background:none;color:var(--bad);font-size:13px} /* pin color: the global button hover paints white otherwise */
+.capconfirm{color:var(--bad)}
+.capconfirm button{border:none;background:none;padding:0;cursor:pointer;font-family:inherit;font-size:9px;line-height:14px;letter-spacing:.02em}
+.capconfirm .cyes{color:var(--ok);font-weight:600}
+.capconfirm .cno{color:var(--bad);font-weight:600}
 .solve.fresh .mini{border-color:var(--ok)}
 .solve.fresh .c{border-color:var(--ok);color:var(--ok)}
 .solve figcaption{
@@ -348,12 +405,34 @@ footer a{color:var(--mut)}
   .tagline{margin-bottom:var(--s2)}
   .ledger li{line-height:1.7}
 }
-@media (max-width:900px){
+@media (max-width:1020px){
   body{overflow:hidden}
-  main{grid-template-columns:1fr;overflow-y:auto;gap:var(--s4);align-items:start}
+  main{display:flex;flex-direction:column;align-items:center;overflow-y:auto;gap:var(--s2);height:auto}
+  main > *{flex:none} /* sections keep their natural height; main scrolls */
   .center{order:1}
-  .flank-left{order:2}
-  .flank-right{order:3}
+  .flank-left{order:2}   /* across/down + the help sections */
+  .flank-right{order:3}  /* the trophy case closes the page */
+  .cell{--sz:min(20vw,74px);font-size:30px}
+  h1{font-size:30px}
+  .tagline{font-size:15px}
+  .ledger li{font-size:15px}
+  .assisttext,.supporttext{font-size:13.5px;margin-left:auto;margin-right:auto}
+  .solvedel{opacity:.55}
+  .label{font-size:11px}
+  .flank-left,.flank-right{text-align:center}
+  .hintrow,.statsrow{justify-content:center}
+  .squares{align-items:center}
+  .archive{flex-direction:column;align-items:center;gap:var(--s1)}
+  .pgcol{top:0}
+  #assistbtn{margin:0 auto}
+  .assist::before,.support::before{left:9%}
+  .solves{zoom:1.18}
+  .wipezone{position:static;margin-left:var(--s3)}
+  main,#timer,#coffee,#claude{zoom:1}
+  .belowboard{position:static;padding-top:0}
+  #status:not(:empty){margin-top:var(--s2)}
+  .boardarea{margin-bottom:0}
+  #assistbtn{zoom:1}
   .flank-left,.flank-right{justify-self:center;width:100%;max-width:420px;margin-left:0;padding-top:0;height:auto;overflow:visible}
   .ledger{justify-content:center}
   footer{white-space:normal}
@@ -365,8 +444,8 @@ footer a{color:var(--mut)}
 </head>
 <body>
 <div class="page">
-  <a id="coffee" href="https://paypal.me/YOURPAYPAL/3" target="_blank" rel="noopener" aria-label="Buy me a coffee" data-tip="Buy me a coffee!">
-    <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h12v6.5a3.5 3.5 0 0 1-3.5 3.5h-5A3.5 3.5 0 0 1 4 15.5V9z"/><path d="M16 10h2a2.5 2.5 0 0 1 0 5h-2"/><path d="M8 3.5c0 1-.8 1.3-.8 2.3M11.5 3.5c0 1-.8 1.3-.8 2.3"/></svg>
+  <a id="coffee" href="https://buymeacoffee.com/sofia1260" target="_blank" rel="noopener" aria-label="Buy me a train ticket" data-tip="Buy me a train ticket!">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3h8a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3z"/><path d="M5 11h14"/><path d="M9 7h6"/><path d="M9 13.9v.2M15 13.9v.2"/><path d="m8 21 2-3.5M16 21l-2-3.5"/></svg>
   </a>
   <button id="claude" aria-label="Switch to dark mode" data-tip="Dark mode">
     <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.9 5.9l2.8 2.8M15.3 15.3l2.8 2.8M18.1 5.9l-2.8 2.8M8.7 15.3l-2.8 2.8"/></svg>
@@ -433,16 +512,22 @@ footer a{color:var(--mut)}
         <h2 class="label">Your squares <span class="count" id="solvecount"></span></h2>
         <div class="statsrow">
           <div class="squarestats" id="squarestats"></div>
-          <button id="wipebtn" class="textbtn" hidden>Clear</button>
+          <span class="wipezone" id="wipezone">
+            <button id="wipebtn" class="textbtn" data-tip="Clear history">Clear</button>
+            <button id="wipeno" class="textbtn" hidden>No</button>
+          </span>
         </div>
-        <div id="solvesempty">Solved squares appear here and stay between visits.</div>
+        <div id="solvesempty">Solved squares appear here.</div>
         <div class="archive">
           <div class="solves" id="solves"></div>
           <div class="pgcol">
-            <button id="pgfirst" class="pg pgfast" aria-label="Newest squares" style="visibility:hidden">«</button>
-            <button id="pgnewer" class="pg" aria-label="Newer squares" style="visibility:hidden">‹</button>
-            <button id="pgolder" class="pg" aria-label="Older squares" style="visibility:hidden">›</button>
-            <button id="pglast" class="pg pgfast" aria-label="Oldest squares" style="visibility:hidden">»</button>
+            <div class="pgrow">
+              <button id="pgfirst" class="pg pgfast" aria-label="Newest squares" style="visibility:hidden">«</button>
+              <button id="pgnewer" class="pg" aria-label="Newer squares" style="visibility:hidden">‹</button>
+              <button id="pgolder" class="pg" aria-label="Older squares" style="visibility:hidden">›</button>
+              <button id="pglast" class="pg pgfast" aria-label="Oldest squares" style="visibility:hidden">»</button>
+            </div>
+            <span id="pgnum" aria-live="polite" style="visibility:hidden"></span>
           </div>
         </div>
       </div>
@@ -457,7 +542,6 @@ footer a{color:var(--mut)}
 
 <script>
 // ---- Sofia: put your PayPal.Me handle here ----
-const PAYPAL_ME = 'https://paypal.me/YOURPAYPAL';
 
 const WORDS = "that this with from your have more will home page free time they site what news only when here also help view been were some like than find date back list name just over year into next used work last most data make them post city such best then good well info high each very book read need many user said does mail full life know days part real item must made line send type take area want long code show even much sign file link open case same both game care down size shop text rate form love john main call save card jobs food sale teen room join west look left team week note live plan cost test come cart play less blog park side give sell body east club road gift hard four blue easy star hand keep porn baby term film head cell self away once sure cars tell able gold arts past five upon says land done ever word bill talk nude kids true else mark rock tips plus auto edit fast fact unit tech meet feel bank risk town girl toys golf loan wide sort half step none lake fire chat loss face base near stay turn mean king copy drug pics cash seen port stop soon held mind lost tour menu hope wish role came fine hour bush huge kind move logo nice sent band lead went mode fund male took song late fall idea tool hill maps deal hold safe feed hall anti ship paid hair anal tree thus wall wine vote ways rule told feet sexy door cool uses java pass fees skin ring boys deep rest pool mini fish pack born race rape debt core sets wood rent dark host fair gets dead mike trip poor eyes farm lord hear goes wife hits zone jack flat flow path laws skip diet army gear lots firm jump ball goal sold wind milf palm pain oral ford edge root pink shot cold foot mass heat wild miss task soft fuel walk fuck wait rose pick load tags guys cock drop rich seem hire gave ones tits rank died inch snow camp fill gone fort gene disc boat icon ends cast felt soul aids flag atom iron void disk desk hong vice duty bear gain lack knew zoom blow clip wire tape spam acid cent null zero roll bath font beta fail jazz bags wear rare bars dual rise bird lady fans dell seat bids toll cape mine whom math dogs moon fear wars kept beat arms hide slow nine spot grow rain onto diff bass hole pets ride pair runs yeah evil euro peak dick salt bell lane kill ages plug cook bike lose seek tony kits soil matt exit keys wave holy acts mesh dean poll bond jean visa pure hell lens draw warm suck babe crew legs rear node lock mile bowl tank navy dish slot gray demo hate rice loop vary milk boot push alan dear beer jane earn twin bits suit chip char echo grid pull nick plot pump exam beds grey bold scan aged bulk cute para seed peer meat bang bone bugs gate tone busy neck wing tiny rail tube belt luck dial gang cake semi cafe till shoe sand seal lies pipe deck thin sick dose lets cats folk okay hist lift mall fell yard pour dust wiki butt kent adds ward roof kiss rush yoga lamp glad wins rack boss anna solo tall nova wake shit drum ease orgy tabs pine tend gulf rick hunt mill burn labs sole laid clay weak wise odds marc sons leaf silk wolf fits kick meal hurt slip cuts mars caps pill meta mint spin wash aims soap axis guns hero punk duke pace wage dawn carl coat doll reed mice temp vast wrap mood quiz beam tops shut thou mask coal lion beef hats surf hook cord crop lite sing tons hang damn hood fame eggs ruby stem drew tune corn puts grew trek ties brad jury tail lawn soup byte nose thru trim quit lung sees bull cole mart tale docs coin fake cure arch bomb harm deer oven noon cams piss mate chef isle slim comp spec midi tied dale boob oils sept unto pays lang stud fold slut pole mega bend moms glen lips pond tire chad josh drag ripe rely nuts nail span joke pads inns cups foam poem asks bean bias swim nano loud rats stat bios thee ruth pray pope jeep bare hung mono tile apps ciao knee prep chem pros cant duck dive raid volt dirt geek sink grip watt pins reno polo horn frog logs snap swap flip buzz nuke boom calm fork troy sims tray sage cave wool eyed grab oops trap fool dies jail comm lace ugly hart rows gods poly ears fist mere cons taxi worn shaw expo deny judy trio cube rugs crap fate oval soma tier earl cite mess rope dump hose pubs mild clan sync mesa hull shed memo tide funk reel bind rand buck acre lows aqua pest reef beth jill sofa dans tent hack dare hawk lamb junk poet epic sake sans lean dude alto gore cult dash cage jake ping flux rage rays acne libs undo halo gays exec vids doom bite myth weed dice quad dock mods hint buys pork barn fare bald fuji mold dame herb idle cove casa flex hash lazy carb pens worm deaf mats blah mime keen peas owns zinc guru levy grad bras pale gaps tear nest gale stan idol moss cork dome heel yang dumb feat glow oaks norm ware jade foul keno seas pose goat sail bolt gage urge neon ours lone cope lime kirk spas jets yarn knit pike bent tate teat tote toea nett tees ante etna neat otto sett stet tets toot ates eats etas rete sate seta tase teas teth toit aeon anta asea deet eath haet iota nene nite tats teed tein thae tine titi toes tret esne leet nota sene stot tare teel tele tint tost tots alee anoa cete eses esse nets oast oats rote stoa tain taos tart tens tian toon tore tosa aero aits anes dote eide erne ests hent naes oath oots rite sane sati soot tael teal tela toed tort trot alae ants arie cate dene dite eeew eons eths haen hest hets hoot inti mete naan nana naoi noes odea rato rees rota seer sere sone tace tans taro teem tern tole tora aide airt aloe anas anon ansa cote dato dees dent doat erst haes hant heth hone inia nare nona olea oses rets roto shea sine snot tact tala tass thio toad tolt toro tres twee weet acta adit ares aria arse awee dita eels eras etic fete hast heed hoes ilea lees lent lota naos nits ohia oleo raia rant rase riot roti sear seel seis sera shat snit sots tame tarn taut teds tilt tins tiro tola tori toss aahs ains alit anis cees dere doit dree elan eros etui hare hath hies hots lati lest loot loto mote ness noni onos ores ossa rede rein rhea roes sade sain sits sore soth taco tali tars tels tome torn tosh tout tsar twae weta agee ahed ales atma cane coot deed deni dine eche emit enol epee feta hade haed haha haos hens hoer ions ires lase leas leer leno loti mite mott nada nans neem nide noel odes orts outa rath reis roan rots sect shen sire sith tads tahr tecs toco toil tors twat tyee yeet acai aces ahis airn alts amie aros cere cone dele desi dint dona dost dots echt emes erns etch geta haar hale heal heir hoed ides lats lede lien mitt moat nala nisi oars ogee ohed oles oohs osar otic rani seme sesh shes shoo slat sloe soar sora stir suet thro tods utes ween wite yett aals ache ados airs alas amen aunt beet cede cert cine dart delt dens dits doer dore dosa doth drat ecos ewes halt hehs helo heme hern hied hoar hora ilia inro lath lear leis lint mane moot nema newt noir nori odas olio rais rale redo rias rode roos sari sass scat sers sned soda thir toft toom torr trad tuna tuts twit wees amia anew anil cath cots dais dino dire eddo elhi gite heil hers holt hons ices ired lade lain lits loon lore loth maes meno meth nodi nolo nome nosh oche odah omen omit orle orra owie pate peat resh roar sadi sash scot seam sice silt sins slit sola sori stew tach taus tepa tews tils trod utas wane wean wets whee abet aced ahem ails alar ands awes bate cade cain celt cero cist coon dace dada deem deme dole duet eave edhs efts emos enow errs ewer eyen eyne fane fest fets fiat gees gent haem hahs hame haut hilt hins hisn hoss iris keet leal lias lier lino lire lode loin loos mana mast meed mien nerd nidi noil ocas olde orad oust outs rend riel rile rotl sels shah shin sial sinh soca sohs sorn tams thew tics toga tope trem urea waes weer whet yeti akee alec amas arid asci atap batt cess chao chit cion cire coed coni coos dado deco deil deli diel dolt dons fere gaen gait gane gean gest ghee hail heft hila hiss holo itch jete lied lute mano mare masa mise moan mots neep nods noma nowt oaty odor ordo owes owse peen rash ream reds rins rood roue secs silo soli staw swat tapa taws tegs tirl toms torc tuis tule twas tyne unai wast wats wert woes wont acro ajee amah amin arco aril atop aura bene bott cans ceca cedi chai chia coho conn crit dahs darn daut dins dodo doss eger fats foes fret gaes gnat gree herd howe iced keta lair lari lass lend liar linn lira mani mead melt mina mist moas moth nard neif omas omer orca owts pees pent reft rhos rial roid rout sals seep shad sirs smit sods sris stey stim stow stun stye sues swot talc tang teak thaw tows toyo tram tref trou tuns twos tyes veto weel wost wots yean agio alme amis anga anus awed ayes bees bitt bota ceil clot coda colt cria deft dels dido diss dohs dosh dout eery egos elds emeu emir eyas eyer eyre fano flee frae gast gats geed gien haft herl hili hind hods homa hues hyte irid keto lahs lame larn lash latu lehr lice lilt lins maar mara mire moos mort naga nape neap neve nils noun oboe olla pane pean pita rads recs rime roil rune sacs sard sego seif sewn shod shri sima sled sols stag toke tong topo waah wade wain wart welt wens wist wits wore yeas acme agas ager agon apes apse areg bait bane bets caca cadi caid calo carn chon clit coir cola coss dads dawt dime diol dors duit dune egis ells eves fade fain fart fens fore frat froe ghat gies glee haaf hems hewn hols homo huts idem kata kite lars lido lieu liri loca loid lorn lout mace malt mans meme miso moho mole mora mute nabe naif narc nope nous oafs onus owed oyes pant pase peon pere pone pree raft redd rind roam rods rues runt ruse saga sews sidh sift sord spae suer taka tike ting togs tolu topi trey trow tush tutu tyer tyre unde vees vent wale weal weir whit whoa wino woos wort aery afar agha agin alef alma amir arcs awns baes bree cels chin coca cosh daft dals dues dunt ebon eely egad ekes engs epha epos ergo eyra feal feod fess fino flea foin foos gaed gelt gens gist gits goas goer goon goth grat harl heap hews lads laic lama lilo litu loco lowe lune mair mend molt mons moor mutt napa nave negs noms obit odic ogre opes paan pats peed pein pert peso rami reif rems rids rife rust ruts sabe sago sawn scar shew shhh sics skee snaw sous spat sued swan taps tipi tiyn tyin unis vane vena vest vets vita wans wren writ yare afro agar alls amid aper arty aves ayah ayin bast bats bine cads chis coco coil cors cred dahl defi dhal doge dols dorr egal emic faro fehs feme fern floe fora frit goos grot hams herm hoof hued hwan ichs ikat iwis jato jees jota kane koto lech loam loci lues lunt lwei maid mash maut meds meou milt mola moue nims nows nuns obes obia olds opts orcs oyer pare pear peel pele phat pheo pies pint pots raga reap rift rocs ruer sall saws scad segs sham sipe slue snye soms sown soya stab sunn sura syne taxa trog ursa vase veer wair wend wile woad wons yens yore zeta abas agro ahoy alfa alow aped apos awol baas baht bint bise bots brae cals camo carr cepe clon cods coma cris cues dews dure ecus elms exes fado fend fiar fons gied girt grit haws homs hoya isms jest kaes keas khet lacs lard lept lids lief lima loft loge loom luna lust mels mhos miri modi mome mool morn mosh nags nevi nill nipa ogle ohms opas pelt phot pian pina pits poon pore prat rams rapt raya reek refs repo rude rued ruin ryot sang serf shmo shwa sild slid snag sour sows spit stob suns tarp tavs tegu thud toph tory trig tuft turr tyro udon ulan ulna vats vein vert vine voes wadi wame warn weds wilt yoni abed ague alga aver bade bani bead bens blet boas boon bore brat cami coft cols dams deke derm dope doty duos eked ergs fahs fash feds fice fins flit foal fohn foss gala goad hake helm hims hiya hove hows huns ills imid jeer jeon kana kats kine knot leap limo loaf locs lure mads mama meow mica milo moil mors nays nebs neum nogs noob obas okes opah oped ouds peal peri pias pier pion pith plea poos ragi rave raws regs robe roms sags saul scut seps sext shim shun sill skat slew snog soba soke suss tiki tody trop tufa turd udos vasa vera vies vise wail wali wand weft whin wiss zoea airy alif alms ammo arfs avos axes bale beal bier blae bode boos bort brie chid daws deva dirl dobe doms duel dura dyne ecru emus exon fido fila gadi gaol gash geds gilt gins giro gnar gran hags haul heps hive hoke hoop hula hunh isba jeed jiao joes kaas kaon keel khat koan lams leek leke leud loch loof lope lude mage mech merl mirs muse naps nosy nyah okeh ooze oxen pans pedi pehs pied piso plat pois pooh prao proa psst rake rang rims rove ryes shag sike slam teff tidy tofu unau unco urns vain vina wads zees akin apod ashy asps awls bans bide blat boar boho bole bora bren brit bute chew choc clad coof cued curt dang deys dims dipt dopa dour dove dows dram duad duce duns duro dyes enuf exed fads filo firn flan foil fond gars gels glia gosh gout halm hays hike hobo hogs hush imam jots kain kart kelt kens kina kist koas kore lall lave leva lich limn lipe lobe lown macs maim maun meld mems merc mids mols muts nabs nary nigh nixe nook obis okas oxes pact pend pile plie pons putt rags reps rill rive saps scam sevs shay shog sigs skit slaw smut soak soys stum tums unci vale vara veal vela vier vino waft weep wyte yins zest abri agma alba amus arak argh arvo auld axon baal beau bile blot boor broo caws cham chic clod clue coif croc dags deps devi dhow dill dong dorm dreg duct feus fico firs foci fuse gads gama genu ghis girn grin haps hasp holm hoys ibis ikon ixia kale keir kier kino kith laud leak levo lewd leys loll lour luce luns lyes lyse mach marl mell mews mils mocs momi muon mure navs nips nobs oink opal orgs ouch owls paca padi pash peds phon pice pood qats rabi rebs rhus rifs ryas sabs saki sigh sika smew snip snob soja sook sops sped suds tegg vans vide vied vole weld wept whir abut ajar ajis axed azan bash bema bice bins biro bola bran brio cafs capo chaw cows cram debs delf difs dike ding doob durn dyer fard faun feeb fems fids fief fife fled gals haik haze hops howl huic jess kern koel kois kora lags lava lipa ludo mabe mams mawn maya meek mics mofo mope muni muso nibs nurd ogam oiks oily okra oxer pail pali pars paua phos pial pome posh pout psis raja raps rasp revs rigs rosy sank scow sips slag snib sobs soph spar sumo syce tabu tamp toff tsks tuba tung uvea vair veil vend vile vlei whid yeow yond yowe zein zine ziti ankh arbs arum avid axel axle azon bail bels bolo bosh bout caul cava ceps chow clew coke coop corm craw cuss cyan cyst daps devs digs diva dyed eddy farl fils gaun geld gems gids gled guan gust guts haji hank harp hips hoax hobs jedi jole jute khan krai lays ling lipo lobo lush lyre magi maws mayo megs mity mown mule mura nurl obol offa pecs phis pica pirn pish poco ptui raki raze rook scag shul sibs skas slay slog sumi surd swam tack tiff towy tugs twig urds uric vatu vins waif whew woof yage yech yods zona adze alps bads bidi bish boil bred brin bros cays clam clef cogs cony copi crow curn dabs daze dray duci duds duma effs fams fawn feud fisc gach gaga gape grue honk hyla inks inly jinn jolt kadi kame karn keef kilt kins knar kola kori koss laps levs liny luau maud moll mows muns nark nazi orbs pals parr peag pech peep pili pods punt rips robs rolf salp sked slap slur sorb spue sudd supe thug tock tomb turf tzar unbe vail vars vial waur waws wham wich wipe wold yeld yodh yuan zeda zens zits zoon achy agog albs alum ambo arks aryl augh axal bals banc beep bods bris bunt chay cigs claw cleg corf cosy coys crag crus curs dank dips dojo dory doum doze durr dyad eaux elks fave flir flue gams germ gird gnaw goof gude hurl ilex ilka jefe jilt jins joss kail kolo laze leks lops luds luma mags maul mewl moke muss myna naff pacs pard perc pima pled pols pomo puna ribs sark shiv skis slab slop sums syli tick trug tups viol weka wove wows wyes yell yews yirr zeal zoos abye awny bard bima bled blin buna bust buts cabs calf caph chap cops cowl cuds daks darb dibs dorp drab drek fang funs gall gaur giga glue gogo gown guar hark hemp holp hums iamb jars khis kilo kirn kors kune lank larp lavs lisp lobs lory luge malm mays meze mogs mony mush neuk newb paty pews phut prod racy rink ritz rudd ruga scab scop scud slob smog spew stub swag tubs upas urus veep vega wags wany waul whey whim wive woke wuss yald yams yawn yird yoof yous yurt ally amok amps avow axil bach bhut birr carp chop clag coax cobs cory coxa curr demy dhak didy dink ditz drip dupe emyd fags fava flew floc fuss gaud gibe gild glut gnus gram heck hork howf impi irks izar kirs kris kues kyte mako marg migs niff nugs obey odyl offs oldy opus orzo oxid pams pawn peek peke pepo perm phew poof qadi qaid rube rums rynd samp snug suba sung sway tyke typo ukes vacs veld webs yagi yaws yipe yule abbe acyl aglu bams bawn bedu berm brut cask clog conk crab crud curd dewy djin drib drys elmy eruv fays flam flic fogs frow fume gags gill gong goop gorm habu hadj homy idly idyl kami kief kiln kuna lacy lakh maki maze mook mops muds nock nogg ouph pall papa pave paws pegs pity plod pogo poms prau pule raff reck sack skid skol sulu swig toby tusk ulus umma vape vaus waps wasp wawl wigs winy yaud ylem yogi yows zeds zins zori auks awry begs birl brew bunn bura clap cloy coly crip curl cyme daff defy dork dull espy figs flaw foys frag furs geez geum gifs glam gobo grim guac guid gush gyno gyre holk hugs ilks illy imps jehu juts kohl kyat lark lily lube lums mips mixt mobs mojo moxa murr oxic pang pows pram puce puns pyes ramp roup rung sagy simp skew skua slum sock spun sugh swab swop ughs wabs wary whap whig wyle wynn yags yaje yeps yill yoke ywis abba amyl baba bake barm baud beak beys bibe biog boll bows boyo buns byes cark clop crib cuif cums damp daub dirk doff dung edgy envy eyry fabs faze fley fops fowl fray fuci fuds gasp gigs gleg glom gowd goys haku hock hogg hymn hype icks iggs iglu jape jarl jell joey kaif keek kefs lull maxi merk mibs miry monk nubs oppo peps pipa plew poke pong poop prom pula puri puss quai ragg riff rimy romp scry scum snub souk sups swob tivy turk updo vagi vaws viga virl wady wank warp welp whop wisp wyns yays yuca apex berg blew bloc bong braw brrr buss caff chez chum cull cyma dugs emmy favs fixt flus fobs frap frig fyce gabs gaum gaze gley glim gook grog hick jams jird kapa kayo kegs kepi kiwi leku loup mink moly mosk oaky ouzo oxim pelf pony prey prim prow pwns pyas pyre raku ryus skeg soju spay subs tuff undy vang vibe vims vows waly whip wiry wonk yaps yawl yogh zoic abys balm barf bawd bays bing blam bobo bogs bony brim brow byre calk cinq coff coup cuke cwms ebbs ekka fibs flay flog gank gips gobs gory grig guls gyro hubs jaws jura kafs kerf kibe kyes limy lugs lulu luny mozo mums owly paps pawl perp pigs piny posy prof puli purs pyin repp skim slug spur sunk syke tump ulva urps vext vill vive whys wink woks yowl agly baps bawl bigs blaw brag bund burs cazh cowy dogy dups fink flap forb furl garb gibs goji gorp gyri howk hunk hypo inby jibe jism jows kava keps khaf kudo lewk limp luxe lych minx mull oyez paik pika plow pops prog puds puma quin rubs skag skep spud suks swum sybo tuck urbs vogs vrow wark wily wynd yank yelp yips yobs bops bray bruh buds buhr cagy calx chug comb culm curf czar dawk dubs flab flop gink hmmm husk ibex jags jive judo kaka kays kifs knap knur kobo lick limb logy mirk mung perv pips prig puls purr pyro ropy roux ryke sukh vigs viny viva waff yaks yerk blag bobs brig burr cusp dopy doux dunk dyke faff feck glop gums immy inky jays jeez jogs kiva knop mack miff mugs mycs nuff orby paks paly perk piki pleb prop ruly rusk scup slub smug umbo verb vuln xyst yoks yuch yuga ably barb bask berk bibs bize bleb bonk buhl burd cubs davy doby drub duly dusk flak gaff gamy geck glob grok gull hwyl hyps jigs joys juco kabs kaki kaph kerb knob kook kops kray kyar lunk lutz luvs mock onyx oozy ovum pacy palp ploy pouf prob purl quod rukh sibb spiv sumy suqs syph vavs wack yelk blur bosk burl chub dexy eggy fugs gamp glib grum huff jabs jook jowl kelp kips kobs koph kvas migg nixy numb pfft pfui pily plop prex pube quid spry sulk sump umps vlog wauk wimp womb wych yaff yaup yegg zags zany zeps zill alky bark bisk blab bozo bums cavy curb cusk falx filk flax gamb gawp hulk hump kbar koji konk laky mumu peck pupa pyic ruff umph whiz wick yeuk yuke zarf zing baff beck blip blob bork buoy caky duff fogy folx frug gimp glum hazy huck iffy jerk jibs kagu kink lurk mopy mumm oryx plex prez pudu puke pung rump spaz whup yack yawp yolk yomp zaps zigs babu balk birk boff bung cobb coky doxy faux friz fubs fury fuze gybe gyms jink juga jupe kemp kufi luff musk pomp pugs puny qoph ruck sizy skry yock zeks biff bubo cuff futz fyke gapy gawk griz gyve hajj icky jube kapu keck kuru lump pimp plum pock pugh quey typy vamp wavy yups zips bilk bock byrl crux dozy gaby glug gowk gunk guvs gypo jaup jinx kudu murk phiz pogy puja pups quag typp viff volk vugs zerk zonk bogy burg cuck fugu goby grub juba juke lynx muff quay tizz vugh yutz zyme bawk bevy bubs bury cozy flub gulp jagg jamb jiff jugs klik mump putz waxy yuks zebu bunk burp fumy gyps jauk jeux jimp jock mazy mpox muck mugg pipy burb busk doxx foxy guff jouk pulp quip zuke bumf poky blub bulb burk fozy guck puff pupu razz bibb buff kyak poxy pulk yuck zouk boxy brux bubu bump pixy puck jivy joky jibb vugg upby yuzu juku juju vaxx fizz bazz jizz fuzz zizz".split(" ");
 const DICT = new Set(WORDS);
@@ -561,20 +645,27 @@ function fmtDate(iso) {
 }
 
 const claudeBtn = document.getElementById('claude');
-function applyTheme(dark) {
-  document.body.classList.toggle('dark', dark);
-  claudeBtn.setAttribute('data-tip', dark ? 'Light mode' : 'Dark mode');
-  claudeBtn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+const THEMES = ['light', 'dark', 'matrix', 'clouds', 'candy'];
+const THEME_NAMES = { light: 'Light', dark: 'Dark', matrix: 'Matrix', clouds: 'Pixel Clouds', candy: 'Pink Clouds' };
+let themeIdx = 0;
+function applyTheme(name) {
+  if (!THEMES.includes(name)) name = 'light';
+  themeIdx = THEMES.indexOf(name);
+  document.body.classList.remove('dark', 'matrix', 'clouds', 'candy');
+  if (name !== 'light') document.body.classList.add(name);
+  claudeBtn.setAttribute('data-tip', 'Change theme');
+  claudeBtn.setAttribute('aria-label', 'Theme: ' + THEME_NAMES[name] + ' — click to cycle');
 }
-kvGet('quadrio_theme').then(v => applyTheme(v === 'dark'));
+kvGet('quadrio_theme').then(v => applyTheme(v || 'light'));
 claudeBtn.addEventListener('click', () => {
-  const dark = !document.body.classList.contains('dark');
-  applyTheme(dark);
-  kvSet('quadrio_theme', dark ? 'dark' : 'light');
+  const next = THEMES[(themeIdx + 1) % THEMES.length];
+  applyTheme(next);
+  kvSet('quadrio_theme', next);
 });
 
 let pageIdx = 0;
 let freshKey = null; // the just-solved square, shown green until Next Square
+let delArmKey = null; // square awaiting delete confirmation
 const PAGE_SIZE = 6;
 function renderSolves(solves) {
   const wrap = document.getElementById('solves');
@@ -589,7 +680,8 @@ function renderSolves(solves) {
         : '')
     : '';
   empty.style.display = solves.length ? 'none' : 'block';
-  document.getElementById('wipebtn').hidden = !solves.length;
+  document.querySelector('.statsrow').style.display = solves.length ? 'flex' : 'none';
+  document.getElementById('wipezone').hidden = !solves.length;
   if (solves.length) {
     const timed = solves.filter(s => !s.r);
     stats.textContent = timed.length ? 'Best ' + fmtTime(Math.min.apply(null, timed.map(s => s.t))) : '';
@@ -601,6 +693,8 @@ function renderSolves(solves) {
   const showFast = pages >= 3 ? showPg : 'hidden';
   const pg = id => document.getElementById(id);
   pg('pgnewer').style.visibility = showPg;   pg('pgolder').style.visibility = showPg;
+  pg('pgnum').style.visibility = showPg;
+  pg('pgnum').textContent = (pageIdx + 1) + '/' + pages;
   pg('pgfirst').style.visibility = showFast; pg('pglast').style.visibility = showFast;
   pg('pgnewer').disabled = pg('pgfirst').disabled = pageIdx === 0;
   pg('pgolder').disabled = pg('pglast').disabled = pageIdx >= pages - 1;
@@ -629,8 +723,35 @@ function renderSolves(solves) {
       ? '<span class="capic" data-tip="' + nHints + '\u00d7 hint' + (nHints > 1 ? 's' : '') + ' used">' + bulbSvg + '</span>'
       : '';
     const icons = star + bulb;
-    cap.innerHTML = '<span>' + base + '</span>' + (icons ? '<span class="capicons">' + icons + '</span>' : '');
-    fig.appendChild(mini); fig.appendChild(cap);
+    const key = canonGrid((s.g || '').toUpperCase());
+    if (delArmKey === key) {
+      cap.innerHTML = '<span class="capconfirm">Delete? <button class="cyes">Y</button> \u00b7 <button class="cno">N</button></span>';
+    } else {
+      cap.innerHTML = '<span>' + base + '</span>' + (icons ? '<span class="capicons">' + icons + '</span>' : '');
+    }
+    const del = document.createElement('button');
+    del.className = 'solvedel'; del.textContent = '\u00d7';
+    del.setAttribute('aria-label', 'Delete this square');
+    del.addEventListener('click', e => {
+      e.stopPropagation();
+      delArmKey = key;
+      renderSolves(solvesCache);
+    });
+    fig.appendChild(mini); fig.appendChild(cap); fig.appendChild(del);
+    if (delArmKey === key) {
+      cap.querySelector('.cyes').addEventListener('click', async e => {
+        e.stopPropagation();
+        delArmKey = null;
+        solvesCache = solvesCache.filter(x => canonGrid((x.g || '').toUpperCase()) !== key);
+        await saveSolves(solvesCache);
+        renderSolves(solvesCache);
+      });
+      cap.querySelector('.cno').addEventListener('click', e => {
+        e.stopPropagation();
+        delArmKey = null;
+        renderSolves(solvesCache);
+      });
+    }
     wrap.appendChild(fig);
   });
 }
@@ -664,21 +785,28 @@ document.getElementById('pgolder').addEventListener('click', () => { pageIdx = p
 document.getElementById('pglast').addEventListener('click', () => { pageIdx = 1e9; renderSolves(solvesCache); });
 
 const wipeBtn = document.getElementById('wipebtn');
-let wipeArmed = false, wipeTimeout = null;
-wipeBtn.addEventListener('click', async () => {
-  if (!wipeArmed) {
-    wipeArmed = true;
-    wipeBtn.textContent = 'Sure?';
-    wipeTimeout = setTimeout(() => { wipeArmed = false; wipeBtn.textContent = 'Clear'; }, 3000);
-    return;
-  }
-  clearTimeout(wipeTimeout);
-  wipeArmed = false;
-  wipeBtn.textContent = 'Clear';
+const wipeNo = document.getElementById('wipeno');
+let wipeState = 0; // 0: Clear -> 1: Yes/No -> 2: Sure?
+function paintWipe() {
+  wipeBtn.textContent = ['Clear', 'Yes', 'Sure?'][wipeState];
+  wipeNo.hidden = wipeState !== 1;
+  if (wipeState === 0) wipeBtn.setAttribute('data-tip', 'Clear history');
+  else wipeBtn.removeAttribute('data-tip');
+}
+wipeBtn.addEventListener('click', async e => {
+  e.stopPropagation();
+  if (wipeState < 2) { wipeState++; paintWipe(); return; }
+  wipeState = 0; paintWipe();
   solvesCache = [];
   await saveSolves([]);
   renderSolves([]);
 });
+wipeNo.addEventListener('click', e => { e.stopPropagation(); wipeState = 0; paintWipe(); });
+document.addEventListener('click', () => {
+  if (wipeState) { wipeState = 0; paintWipe(); }
+  if (delArmKey) { delArmKey = null; renderSolves(solvesCache); }
+});
+paintWipe();
 
 // ---- input handling ----
 let solved = false;
@@ -724,7 +852,7 @@ function persistAttempt() {
   const ms = elapsedMs + (running ? Date.now() - lastTick : 0);
   const live = /[A-Z]/i.test(letters) || ms > 500 || hintsUsed > 0;
   if (solved || !live) { kvSet(ATTEMPT_KEY, ''); return; }
-  kvSet(ATTEMPT_KEY, JSON.stringify({ g: letters, ms: ms, h: hintsUsed }));
+  kvSet(ATTEMPT_KEY, JSON.stringify({ g: letters, ms: ms, h: hintsUsed, hm: [...hintedMask] }));
 }
 function scheduleAttemptSave() {
   clearTimeout(attemptSaveT);
@@ -741,6 +869,7 @@ cells.forEach(inp => {
   inp.addEventListener('input', () => {
     const v = inp.value.replace(/[^a-zA-Z]/g, '').toUpperCase();
     inp.value = v.slice(-1);
+    hintedMask.delete(+inp.dataset.r * 4 + +inp.dataset.c); // typed over: the hint no longer owns this cell
     startTimer();
     if (inp.value) {
       const r = +inp.dataset.r, c = +inp.dataset.c;
@@ -907,7 +1036,7 @@ async function recordSolve(gridStr, secs, bonus) {
   }
   const entry = { g: g, t: secs, d: new Date().toISOString() };
   if (bonus) entry.b = 1;
-  if (hintsUsed > 0) entry.h = hintsUsed;
+  if (hintedMask.size > 0) entry.h = hintedMask.size; // badge counts hint letters in the winning grid
   if (purchasedReveal) { entry.r = 1; purchasedReveal = false; }
   solvesCache.push(entry);
   freshKey = canonGrid(g);
@@ -925,6 +1054,7 @@ async function recordSolve(gridStr, secs, bonus) {
 
 // ---- controls ----
 document.getElementById('clearlettersbtn').addEventListener('click', () => {
+  hintedMask.clear(); // letters gone, hint provenance gone (the fee stays paid)
   if (solved) return;
   cells.forEach(c => { c.value = ''; });
   hintMsg.textContent = ''; hintMsg.className = '';
@@ -942,6 +1072,7 @@ document.getElementById('nextbtn').addEventListener('click', () => {
   freshKey = null;
   renderSolves(solvesCache);
   hintsUsed = 0;
+  hintedMask.clear();
   paintHints();
   hintMsg.textContent = ''; hintMsg.className = '';
   resetTimer();
@@ -1002,6 +1133,7 @@ function findCompletion(opts) {
 const hintMsg = document.getElementById('hintmsg');
 const HINT_MAX = 3;
 let hintsUsed = 0;
+let hintedMask = new Set(); // cells whose letters came from hints and survived
 function paintHints() {
   const left = HINT_MAX - hintsUsed;
   const el = document.getElementById('hintcount');
@@ -1040,6 +1172,7 @@ function runHint() {
   if (!best) { hintMsg.textContent = 'The grid is full. Fix a letter instead.'; hintMsg.className = ''; return; }
   const [r, c] = best;
   at(r, c).value = res.sol[r][c].toUpperCase();
+  hintedMask.add(r * 4 + c);
   hintsUsed++;
   paintHints();
   startTimer();
@@ -1056,6 +1189,7 @@ kvGet(ATTEMPT_KEY).then(v => {
   for (let i = 0; i < 16; i++) if (a.g[i] !== '.') cells[i].value = a.g[i];
   elapsedMs = Math.max(0, a.ms || 0);
   hintsUsed = a.h || 0;
+  hintedMask = new Set(a.hm || []);
   paintHints();
   if (/[A-Z]/i.test(a.g) || elapsedMs > 0 || hintsUsed > 0) {
     timing = true;
