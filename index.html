@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quadrio — 4×4 Word Square Puzzle Game</title>
+<meta name="description" content="A free 4×4 word square puzzle in your browser. Fill the grid so every row and every column is a real four-letter word. 57 million squares. One at a time.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23FFFFFF'/%3E%3Cg fill='none' stroke='%23141414' stroke-width='2'%3E%3Crect x='3' y='3' width='26' height='26'/%3E%3Cpath d='M16 3v26M3 16h26'/%3E%3C/g%3E%3Crect x='17.5' y='17.5' width='10' height='10' fill='%23141414'/%3E%3C/svg%3E">
+<meta property="og:title" content="Quadrio — 4×4 Word Square Puzzle Game">
+<meta property="og:description" content="Fill the grid so every row and every column is a real four-letter word.">
+<meta property="og:url" content="https://quadrio.games/">
+<meta property="og:image" content="https://quadrio.games/preview.png">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://quadrio.games/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "Quadrio",
+  "url": "https://quadrio.games/",
+  "image": "https://quadrio.games/preview.png",
+  "description": "A free 4×4 word square puzzle in your browser. Fill the grid so every row and every column is a real four-letter word.",
+  "genre": ["Word game", "Puzzle"],
+  "gamePlatform": "Web browser",
+  "applicationCategory": "GameApplication",
+  "operatingSystem": "Any",
+  "playMode": "SinglePlayer",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#FFFFFF">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext x='32' y='47' text-anchor='middle' font-family='Helvetica Neue,Helvetica,Arial,sans-serif' font-size='52' font-weight='700' fill='%23141414'%3EQ%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#FFFFFF;
+  --ink:#141414;
+  --mut:#6F6F6F;
+  --faint:#A6A6A6;
+  --hair:#E8E8E8;
+  --ok:#1B7A44;
+  --bad:#C43D2F;
+  --dup:#A87614;
+  --cellhover:#FAFAFA; --text2:#5C5C5C;
+  --s1:8px; --s2:16px; --s3:24px; --s4:32px; --s5:48px;
+  --flanktop:95px; /* fixed anchor: header letters rest ON the board top line */
+}
+body.dark{
+  --bg:#121212; --ink:#EBEBEB; --mut:#9F9F9F; --faint:#6A6A6A; --hair:#2B2B2B;
+  --ok:#43A56F; --bad:#DA6355; --dup:#C79A3B;
+  --cellhover:#1B1B1B; --text2:#B9B9B9;
+}
+body.matrix{
+  --bg:#060A06; --ink:#3BF07A; --mut:#22A854; --faint:#177238; --hair:#0E3B1F;
+  --ok:#3BF07A; --bad:#FF6A55; --dup:#D6B93C;
+  --cellhover:#0A140C; --text2:#2FCB66;
+}
+body.clouds{
+  --bg:#C9E6FB; --ink:#1E3A5F; --mut:#48709B; --faint:#7FA6C9; --hair:#9EC6E8;
+  --ok:#1F7A47; --bad:#C43D2F; --dup:#A87F1F;
+  --cellhover:#DDF0FF; --text2:#3A6089;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='22'%3E%3Cg fill='%23FFFFFF'%3E%3Crect x='6' y='8' width='14' height='4'/%3E%3Crect x='8' y='6' width='8' height='2'/%3E%3Crect x='10' y='4' width='4' height='2'/%3E%3Crect x='4' y='10' width='18' height='2'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:190px auto;
+  image-rendering:pixelated;
+}
+body.candy{
+  --bg:#FBD9E8; --ink:#8A1D52; --mut:#B05585; --faint:#D392B4; --hair:#F0AFCB;
+  --ok:#0F9D58; --bad:#D6304A; --dup:#B8860B;
+  --cellhover:#FCE7F1; --text2:#A03B6F;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='22'%3E%3Cg fill='%23FFFFFF'%3E%3Crect x='6' y='8' width='14' height='4'/%3E%3Crect x='8' y='6' width='8' height='2'/%3E%3Crect x='10' y='4' width='4' height='2'/%3E%3Crect x='4' y='10' width='18' height='2'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:190px auto;
+  image-rendering:pixelated;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+::selection{background:var(--ink);color:var(--bg)}
+html,body{height:100%}
+body{
+  font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
+  background:var(--bg);color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  overflow:hidden;
+  display:flex;justify-content:center;
+}
+.page{
+  width:100%;max-width:1180px;height:100dvh;
+  display:grid;grid-template-rows:minmax(0,1fr) auto;
+  padding:0 clamp(20px,4vw,48px);
+}
+
+.label{
+  font-size:10px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--mut);
+;
+  line-height:14px; /* fixed: tall glyphs like the star may not grow the line */
+}
+
+/* ---------- fixed chrome: coffee (top-left) & timer (top-right) ---------- */
+#coffee,#claude{
+  position:fixed;top:var(--s2);left:var(--s3);z-index:10;
+  color:var(--mut);display:block;transition:color .15s ease;
+  zoom:1.18;
+}
+#coffee:hover,#coffee:focus-visible,#claude:hover,#claude:focus-visible{color:var(--ink)}
+#coffee svg,#claude svg{width:20px;height:20px;display:block;fill:none;stroke:currentColor;transition:stroke .15s ease}
+#coffee svg path,#claude svg path{stroke:currentColor;transition:stroke .15s ease}
+#coffee:hover svg,#coffee:hover svg path,#claude:hover svg,#claude:hover svg path,
+#coffee:focus-visible svg,#coffee:focus-visible svg path,#claude:focus-visible svg,#claude:focus-visible svg path{stroke:var(--ink)}
+#claude{left:54px}
+#profile{
+  position:fixed;top:calc(var(--s2) - 3px);right:60px;z-index:20; /* ink-aligned with the timer digits */
+  zoom:1.18;color:var(--mut);border:none;background:none;padding:0;cursor:pointer;
+  font-family:inherit;letter-spacing:0;text-transform:none;transition:color .15s ease;
+}
+#profile svg{width:20px;height:20px;display:block}
+#profile:hover,#profile:focus-visible{color:var(--ink)}
+#profile.on{color:var(--ok)}
+#acctpanel[hidden]{display:none} /* the fare-menu lesson: display:flex must not override hidden */
+#acctpanel{
+  position:fixed;top:52px;right:24px;z-index:30;
+  width:min(290px,calc(100vw - 48px));
+  background:var(--bg);border:1px solid var(--hair);
+  padding:14px 16px;display:flex;flex-direction:column;gap:10px;
+}
+.acctitle{font-size:10px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:var(--ink)}
+.accttext{font-size:12px;color:var(--mut);line-height:1.5}
+#acctwho{color:var(--ink)}
+.acctbtn{
+  border:1px solid var(--ink);background:var(--bg);color:var(--ink);
+  font-family:inherit;font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;
+  padding:8px 10px;cursor:pointer;
+}
+.acctbtn:hover{background:var(--ink);color:var(--bg)}
+#acctout,#acctin{display:flex;flex-direction:column;gap:10px}
+#acctsignout{align-self:flex-start;padding:7px 12px}
+#acctin[hidden],#acctout[hidden]{display:none}
+.acctrow{display:flex;gap:8px;align-items:center}
+.acctrow[hidden]{display:none} /* the fare-menu lesson, fourth edition */
+#acctemail{
+  flex:1;min-width:0;border:1px solid var(--hair);background:var(--bg);color:var(--ink);
+  font-family:inherit;font-size:11px;padding:6px 8px;outline:none;
+}
+#acctemail:focus{border-color:var(--mut)}
+#acctsend{padding:7px 12px}
+#acctmsg{font-size:11px;color:var(--ok);line-height:1.4}
+#acctmsg:empty{display:none}
+#acctmsg.bad{color:var(--bad)}
+#coffee,#claude{border:none;background:none;padding:0;cursor:pointer;font-family:inherit;letter-spacing:0;text-transform:none;color:var(--mut)}
+#coffee svg *,#claude svg *{stroke:currentColor}
+#coffee svg path{transition:fill .15s ease,stroke .15s ease}
+#coffee:hover svg path:nth-child(1),#coffee:focus-visible svg path:nth-child(1){fill:var(--ink)}
+#coffee:hover svg path:nth-child(2),#coffee:hover svg path:nth-child(3),#coffee:hover svg path:nth-child(4),
+#coffee:focus-visible svg path:nth-child(2),#coffee:focus-visible svg path:nth-child(3),#coffee:focus-visible svg path:nth-child(4){stroke:var(--bg)}
+
+#coffee svg path:first-of-type{fill:none;transition:fill .15s ease}
+#coffee:hover svg path:first-of-type,#coffee:focus-visible svg path:first-of-type{fill:var(--ink)}
+#coffee::after,#claude::after{
+  content:attr(data-tip);
+  position:absolute;left:0;top:calc(100% + var(--s1));
+  background:var(--ink);color:var(--bg);
+  font-size:10px;letter-spacing:.04em;line-height:1;text-transform:none;font-weight:400;
+  padding:6px 10px;white-space:nowrap;
+  opacity:0;pointer-events:none;transition:opacity .12s ease;
+}
+#coffee:hover::after,#coffee:focus-visible::after,#claude:hover::after,#claude:focus-visible::after{opacity:1}
+
+#timer{
+  position:fixed;top:var(--s2);right:var(--s3);z-index:10;
+  font-size:13px;color:var(--mut);font-variant-numeric:tabular-nums;
+  zoom:1.18;
+}
+
+/* ---------- composition: title row, then three top-aligned columns ---------- */
+main{
+  zoom:1.18; /* the slight zoom-in; footer sits outside and keeps its size */
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  column-gap:clamp(24px,3vw,40px);
+  align-items:start;   /* flanks are top-anchored: their content can never move them */
+  align-content:center;
+  padding:var(--s5) 0 var(--s5); /* symmetric envelope: equal air above the title and below the controls */
+  min-height:0;
+}
+h1{
+  white-space:nowrap;width:0;min-width:100%; /* tracked wordmark may not widen the column */
+  font-size:clamp(24px,3.6vw,36px);font-weight:700; /* masthead: ink spans the board, edge to edge */
+  letter-spacing:.26em;margin-left:-2px; /* optical: ink centered (trailing tracking + side bearings measured out) */
+  text-transform:uppercase;text-align:center;
+  margin-bottom:8px; /* grouped: title+instructions read as one unit above the board */
+}
+
+.flank{min-width:0;min-height:0;max-height:100%}
+.flank-left{justify-self:end}
+.flank-right{justify-self:start;margin-left:var(--s3)} /* clears the mark column so ink-to-ink whitespace matches the left */
+.flank-left,.flank-right{
+  width:224px;padding-top:var(--flanktop,0px); /* fixed top anchor */
+  height:0;overflow:visible; /* zero layout height: flank content can never move the page */
+}
+
+.center{display:flex;flex-direction:column;align-items:center;min-height:0}
+
+.tagline{
+  font-size:13.5px;line-height:1.5;color:var(--text2);
+  text-wrap:pretty;text-align:center;
+  width:0;min-width:100%;          /* board defines the column width */
+  margin-bottom:var(--s2);
+}
+.tagline b{color:var(--ink);font-weight:500}
+
+/* ---------- board group ---------- */
+.boardarea{display:flex;flex-direction:column;align-items:center;gap:var(--s1);position:relative}
+.belowboard{
+  position:absolute;top:100%;left:0;width:100%;
+  display:flex;flex-wrap:wrap;justify-content:center;align-items:baseline;
+  gap:4px 6px;padding-top:var(--s2);
+}
+.board{position:relative;margin-bottom:var(--s3)} /* reserves the column-mark strip */
+.row{display:flex}
+.cell{
+  --sz:clamp(56px,min(13vw,10.5vh),80px);
+  width:var(--sz);height:var(--sz);
+  border:1px solid var(--ink);
+  margin:-1px 0 0 -1px;
+  background:var(--bg);
+  font-family:inherit;
+  font-size:calc(var(--sz)*.42);
+  font-weight:500;
+  text-align:center;text-transform:uppercase;padding-bottom:3px;
+  color:var(--ink);caret-color:var(--ink);
+  border-radius:0;
+  transition:color .15s ease,border-color .4s ease,background .15s ease;
+}
+.cell{background:var(--bg)}
+.cell:hover{background:var(--cellhover)}
+.cell:focus{outline:none;box-shadow:inset 0 0 0 2px var(--ink);z-index:2;position:relative;background:var(--bg)}
+.cell.dupword{color:var(--dup)}
+.board.won .cell{border-color:var(--ok);color:var(--ok)}
+
+.rowmarks{position:absolute;left:100%;top:0;height:100%;display:flex;flex-direction:column;padding-left:12px}
+.colmarks{position:absolute;top:100%;left:0;width:100%;display:flex;padding-top:10px}
+.mark{flex:1;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;transition:color .15s ease}
+.mark.ok{color:var(--ok)}
+.mark.bad{color:var(--bad)}
+.mark.dup{color:var(--dup)}
+.mark.dead{color:var(--bad)}
+.mark.idle{color:var(--faint)}
+
+.undergrid{align-self:stretch;display:flex;justify-content:center;align-items:center;gap:var(--s2);margin-top:var(--s1)}
+.undergrid .textbtn{margin-left:0}
+.usep{color:var(--faint);font-size:13px;line-height:1;user-select:none}
+
+#dirbtn{
+  border:none;background:none;padding:2px;
+  color:var(--mut);position:relative;cursor:pointer;font-family:inherit;
+  transition:color .15s ease;
+}
+#dirbtn svg{width:18px;height:18px;display:block;transition:transform .15s ease}
+#dirbtn.down svg{transform:rotate(90deg)}
+#dirbtn:hover,#dirbtn:focus-visible{background:none;color:var(--ink)}
+#dirbtn::after{
+  content:attr(data-tip);
+  position:absolute;left:50%;top:calc(100% + var(--s1));transform:translateX(-50%);
+  background:var(--ink);color:var(--bg);
+  font-size:10px;letter-spacing:.04em;line-height:1;text-transform:none;font-weight:400;
+  padding:6px 10px;white-space:nowrap;
+  opacity:0;pointer-events:none;transition:opacity .12s ease;
+}
+#dirbtn:hover::after,#dirbtn:focus-visible::after{opacity:1}
+
+#status{
+  font-size:12.5px;min-height:18px;
+  color:var(--ok);font-weight:500;letter-spacing:.02em;
+  text-align:center;
+}
+#status.note{color:var(--bad);font-weight:400}
+#nextbtn[hidden]{display:none}
+#nextbtn{
+  border:none;background:none;padding:0;margin:0;
+  font-size:12.5px;font-weight:600;letter-spacing:.02em;text-transform:none;
+  color:var(--ok);text-decoration:underline;text-underline-offset:3px;cursor:pointer;
+}
+#nextbtn:hover,#nextbtn:focus-visible{background:none;color:var(--ink)}
+
+/* ---------- shared button language ---------- */
+button{
+  font-family:inherit;font-size:10.5px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--ink);background:var(--bg);border:1px solid var(--ink);border-radius:0;
+  padding:10px 24px;cursor:pointer;
+  transition:background .15s ease,color .15s ease;
+}
+button:hover{background:var(--ink);color:var(--bg)}
+button:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+button.textbtn{
+  border:none;padding:0;margin-left:10px;
+  font-size:10px;letter-spacing:.18em;color:var(--faint);
+  background:none;vertical-align:baseline;
+}
+button.textbtn:hover{background:none;color:var(--bad)}
+
+/* ---------- flank sections: one axis, one rhythm ---------- */
+/* groups separate by 32+16; content within groups steps by 8/16 */
+.assist,.support{position:relative;margin-top:22px;padding-top:var(--s2)} /* 2px optical shave: flank bottoms close level */
+.assist::before,.support::before{ /* shortened section rule */
+  content:'';position:absolute;top:0;left:0;
+  width:82%;height:1px;background:var(--hair);
+}
+.assist h2,.support h2,.squares h2,.ledger h2{margin-bottom:var(--s1);color:var(--ink)}
+
+.ledger{display:flex;gap:var(--s2)}
+.ledger ul{list-style:none}
+.ledger li{
+  font-size:13.5px;font-weight:500;letter-spacing:.32em;text-transform:uppercase;
+  line-height:1.6;font-variant-numeric:tabular-nums;white-space:nowrap;
+}
+.ledger li.idle{color:var(--faint)}
+.ledger li.ok a{color:var(--ok);text-decoration:none;border-bottom:1px solid var(--ok)}
+.ledger li.bad{color:var(--bad);text-decoration:line-through}
+.ledger li.dup{color:var(--dup)}
+.ledger li.dead{color:var(--bad)}
+.ledger li .x2{font-size:9px;letter-spacing:.05em;vertical-align:2px;margin-left:2px}
+
+.squares{min-height:0;display:flex;flex-direction:column}
+.squares h2{white-space:nowrap;margin-bottom:var(--s1)}
+.squares h2 .count{color:var(--faint);font-weight:400}
+.statsrow{display:flex;justify-content:flex-start;align-items:baseline;margin-bottom:var(--s1);min-height:14px;position:relative}
+.wipezone{position:absolute;left:86px;display:flex;gap:12px} /* registers on the archive's second column */
+#wipebtn{position:relative}
+#wipebtn[data-tip]::after{
+  content:attr(data-tip);
+  position:absolute;left:0;bottom:calc(100% + 6px);
+  background:var(--ink);color:var(--bg);
+  font-size:10px;letter-spacing:.04em;line-height:1;font-weight:400;text-transform:none;
+  padding:6px 10px;white-space:nowrap;
+  opacity:0;pointer-events:none;transition:opacity .12s ease;z-index:5;
+}
+#wipebtn[data-tip]:hover::after{opacity:1}
+.statsrow .textbtn{margin-left:0}
+.squarestats{
+  font-size:10px;color:var(--mut);letter-spacing:.18em;text-transform:uppercase;
+  font-variant-numeric:tabular-nums;
+}
+#solvesempty{font-size:12.5px;color:var(--faint);line-height:1.6}
+.solves{
+  display:grid;grid-template-columns:repeat(2,max-content);
+  justify-content:start;
+  gap:var(--s2) var(--s2);
+  min-height:298px; /* three rows on the 16px system; page flips can't shift layout */
+  min-width:155px;  /* two columns always, so partial pages never shift the arrows */
+  align-content:start;
+}
+.archive{display:flex;align-items:center;gap:var(--s1)}
+.pgcol{display:flex;flex-direction:column;align-items:center;gap:3px;position:relative;top:-8px}
+.pgrow{display:flex;align-items:center;gap:2px}
+button.pg{
+  border:none;background:none;padding:0 2px;
+  height:22px;display:inline-flex;align-items:center;justify-content:center;
+  font-size:16px;line-height:1;letter-spacing:0;
+  color:var(--mut);cursor:pointer;font-family:inherit;
+}
+button.pg.pgfast{font-size:12px}
+#pgnum{font-size:10px;font-weight:500;color:var(--mut);font-variant-numeric:tabular-nums;min-width:26px;text-align:center;line-height:14px}
+button.pg:disabled{color:var(--hair);cursor:default}
+button.pg:disabled:hover{color:var(--hair)}
+button.pg:hover{background:none;color:var(--ink)}
+.solve .mini{display:inline-block;border:1px solid var(--hair)}
+.mini .r{display:flex}
+.mini .c{
+  width:17px;height:17px;
+  border:0;border-right:1px solid var(--hair);border-bottom:1px solid var(--hair);
+  display:flex;align-items:center;justify-content:center;
+  font-size:8px;font-weight:500;text-transform:uppercase;color:var(--mut);
+}
+.mini .c:last-child{border-right:0}
+.mini .r:last-child .c{border-bottom:0}
+.solve{position:relative;padding:8px 8px 0 0;margin:-8px -8px 0 0} /* invisible shoulder: the corner X lives fully inside this box */
+.solvedel{
+  position:absolute;top:0;right:0; /* 16px box inside the shoulder: X center = mini's top-right corner */
+  width:16px;height:16px;
+  display:flex;align-items:center;justify-content:center;
+  border:0;background:none;color:var(--bad);
+  font-size:12px;font-weight:600;line-height:1;padding:0;cursor:pointer;font-family:inherit;
+  opacity:0;transition:opacity .12s ease,transform .12s ease;
+}
+.solve .mini:hover ~ .solvedel,.solvedel:focus-visible{opacity:1} /* only the grid itself summons the X — not the caption or its icons */
+.solvedel:hover,.solvedel:focus-visible{opacity:1;background:none;color:var(--bad);font-size:13px} /* pin color: the global button hover paints white otherwise */
+.capconfirm{color:var(--mut)} /* the question stays quiet; only the answers wear color */
+.capconfirm button{border:none;background:none;padding:0 1px;cursor:pointer;font-family:inherit;font-size:11px;line-height:14px;letter-spacing:0}
+.capconfirm .cyes{color:var(--ok);font-weight:600;font-size:11px}
+.capconfirm .cno{color:var(--bad);font-weight:600;font-size:13px}
+.solve.fresh .mini{border-color:var(--ok)}
+.solve.fresh .c{border-color:var(--ok);color:var(--ok)}
+.solve figcaption{
+  font-size:8px;color:var(--faint);margin-top:5px;
+  font-variant-numeric:tabular-nums;letter-spacing:.02em;
+  width:0;min-width:100%;white-space:nowrap;height:14px;line-height:14px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.capicons{display:inline-flex;align-items:center;gap:3px;margin-left:0}
+.capstar{font-size:10px;line-height:1}
+.capduo{display:inline-flex;align-items:center}
+.capduo .capstar{font-size:10px;letter-spacing:0}
+.capduo .capic:last-child{margin-left:-3px} /* the star's tip passes under the bulb's transparent glass */ /* the star's right points crop away — tucked behind the bulb, transparent over any theme */
+.capic{position:relative;display:inline-flex;align-items:center;height:14px;cursor:default;transition:color .15s ease} /* uniform height: both tooltips hang from the same line */
+.capic:hover{color:var(--ink)}
+.capic:hover .capbulb{stroke:var(--ink)}
+.capic:hover .capbulb path:first-of-type{fill:var(--ink)}
+.capbulb path{transition:fill .15s ease,stroke .15s ease}
+.capic::after{
+  content:attr(data-tip);
+  position:absolute;right:0;bottom:calc(100% + 6px);
+  background:var(--ink);color:var(--bg);
+  font-size:10px;letter-spacing:.04em;line-height:1;font-weight:400;text-transform:none;
+  padding:6px 10px;white-space:nowrap;
+  opacity:0;pointer-events:none;transition:opacity .12s ease;z-index:5;
+}
+.capic:hover::after{opacity:1}
+.statstar{position:relative;cursor:default}
+.statstar::after{
+  content:attr(data-tip);
+  position:absolute;left:50%;transform:translateX(-50%);bottom:calc(100% + 8px);
+  background:var(--ink);color:var(--bg);
+  font-size:11px;letter-spacing:.04em;line-height:1;font-weight:400;
+  padding:6px 10px;white-space:nowrap;
+  opacity:0;pointer-events:none;transition:opacity .12s ease;z-index:5;
+}
+.statstar:hover::after{opacity:1}
+.capbulb{width:9px;height:9px;vertical-align:-1px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+
+.assisttext,.supporttext{font-size:12px;color:var(--mut);line-height:1.5;margin-bottom:var(--s1);max-width:36ch}
+.assisttext{margin-bottom:var(--s2)} /* the wider toggle wants more air than the eye */
+#assistbtn{
+  display:block;
+  zoom:calc(1 / 1.18); /* stays its exact current size */
+  width:50px;height:20px;padding:0;position:relative;
+  border:1px solid var(--bad);border-radius:10px;background:var(--bg);
+  transition:border-color .15s ease;
+}
+#assistbtn::before{ /* knob */
+  content:'';position:absolute;top:3px;left:3px;width:12px;height:12px;
+  border-radius:50%;background:var(--bad);
+  transition:left .15s ease,background .15s ease;
+}
+#assistbtn::after{ /* state text */
+  content:'OFF';position:absolute;right:7px;top:50%;transform:translateY(-50%);
+  color:var(--bad);font-size:11px;font-weight:500;letter-spacing:.02em;
+  transition:color .15s ease;
+}
+#assistbtn:hover{background:var(--bg)}
+#assistbtn[aria-pressed="true"]{border-color:var(--ok);background:var(--bg)}
+#assistbtn[aria-pressed="true"]:hover{background:var(--bg)}
+#assistbtn[aria-pressed="true"]::before{left:35px;background:var(--ok)}
+#assistbtn[aria-pressed="true"]::after{content:'ON';left:8px;right:auto;color:var(--ok)}
+
+#hintbtn{
+  display:inline-flex;align-items:center;justify-content:center;
+  border:none;background:none;padding:2px;width:auto;margin-top:-3px;margin-left:-7px; /* pull bulb ink to the flank edge, level with the toggle */
+  color:var(--mut);position:relative;transition:color .15s ease;
+}
+#hintbtn:hover,#hintbtn:focus-visible{background:none;color:var(--ink)}
+#hintbtn svg{width:20px;height:20px;display:block}
+#hintbtn svg path{fill:none;transition:fill .15s ease}
+#hintbtn:hover svg path:first-of-type,#hintbtn:focus-visible svg path:first-of-type{fill:var(--ink)}
+.hintrow{display:flex;align-items:center;gap:3px}
+#hintcount{font-size:11px;font-weight:500;line-height:1;color:var(--ok);position:relative;top:-2px} /* optical: ink centers on the bulb dome */
+#hintcount.spent{color:var(--bad)}
+#hintmsg{font-size:12px;margin-top:var(--s1);min-height:1.3em;color:var(--mut);max-width:36ch;line-height:1.5}
+#hintmsg.bad{color:var(--bad)}
+
+/* ---------- footer ---------- */
+footer{
+  width:100vw;margin-left:calc(50% - 50vw);
+  border-top:1px solid var(--hair);
+  padding:var(--s2) clamp(16px,2.5vw,36px);
+  font-size:13px;color:var(--mut);line-height:1.6;
+  text-align:center;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+footer a{color:var(--mut)}
+#foothandle{display:none;border:none;background:none;padding:2px;margin:0 auto;color:var(--faint);cursor:pointer}
+#foothandle svg{width:16px;height:16px;display:block;transition:transform .15s ease}
+footer.open #foothandle svg{transform:rotate(180deg)}
+
+/* ---------- responsive ---------- */
+@media (max-height:720px){
+  main{padding-bottom:var(--s3);align-content:start}
+  .tagline{margin-bottom:var(--s2)}
+  .ledger li{line-height:1.7}
+}
+@media (max-width:1020px){
+  body{overflow:hidden}
+  main{display:flex;flex-direction:column;align-items:center;overflow-y:auto;gap:var(--s2);height:auto}
+  main > *{flex:none} /* sections keep their natural height; main scrolls */
+  .center{order:1}
+  .flank-left{order:2}   /* across/down + the help sections */
+  .flank-right{order:3}  /* the trophy case closes the page */
+  .cell{--sz:min(20vw,74px);font-size:30px}
+  h1{font-size:30px}
+  .tagline{font-size:15px}
+  .ledger li{font-size:15px}
+  .assisttext,.supporttext{font-size:13.5px;margin-left:auto;margin-right:auto}
+  #foothandle{display:flex}
+  footer:not(.open) .foottext{display:none}
+  footer{padding-top:6px}
+  .assist,.support{margin-top:22px;padding-top:22px} /* mobile: every line centered at 22/22 */
+  #hintmsg{margin-top:4px;min-height:14px}
+  .squares{position:relative;padding-top:22px;margin-top:-12px} /* line centered; hint reserve swallowed */
+  .squares::before{content:'';position:absolute;top:0;left:9%;width:82%;height:1px;background:var(--hair)}
+  .label{font-size:11px}
+  .flank-left,.flank-right{text-align:center}
+  .hintrow,.statsrow{justify-content:center}
+  .squares{align-items:center}
+  .archive{flex-direction:column;align-items:center;gap:var(--s1)}
+  .pgcol{top:0}
+  #assistbtn{margin:0 auto}
+  .assist::before,.support::before{left:9%}
+  .solves{zoom:1.18}
+  .wipezone{position:static;margin-left:var(--s3)}
+  main,#timer,#coffee,#claude,#profile{zoom:1}
+  .belowboard{position:static;padding-top:0}
+  #status:not(:empty){margin-top:var(--s2)}
+  .boardarea{margin-bottom:0}
+  #assistbtn{zoom:1}
+  .flank-left,.flank-right{justify-self:center;width:100%;max-width:420px;margin-left:0;padding-top:0;height:auto;overflow:visible}
+  .ledger{justify-content:center}
+  footer{white-space:normal}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none !important}
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <a id="coffee" href="https://buymeacoffee.com/sofia1260" target="_blank" rel="noopener" aria-label="Buy me a train ticket" data-tip="Buy me a train ticket!">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3h8a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3z"/><path d="M5 11h14"/><path d="M9 7h6"/><path d="M9 13.9v.2M15 13.9v.2"/><path d="m8 21 2-3.5M16 21l-2-3.5"/></svg>
+  </a>
+  <button id="claude" aria-label="Switch to dark mode" data-tip="Dark mode">
+    <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.9 5.9l2.8 2.8M15.3 15.3l2.8 2.8M18.1 5.9l-2.8 2.8M8.7 15.3l-2.8 2.8"/></svg>
+  </button>
+  <button id="profile" aria-label="Account" hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 19.5c1.2-3.2 3.9-4.8 7-4.8s5.8 1.6 7 4.8"/></svg>
+  </button>
+  <div id="acctpanel" hidden>
+    <div class="acctitle">Your account</div>
+    <div id="acctout">
+      <div class="accttext">Sign in to keep your squares on every device.</div>
+      <button id="acctgoogle" class="acctbtn">Continue with Google</button>
+      <div class="acctrow" hidden>
+        <input id="acctemail" type="email" placeholder="Email address&hellip;" spellcheck="false" autocomplete="email">
+        <button id="acctsend" class="acctbtn">Send link</button>
+      </div>
+    </div>
+    <div id="acctin" hidden>
+      <div class="accttext">Signed in as <span id="acctwho"></span></div>
+      <button id="acctsignout" class="acctbtn">Sign out</button>
+    </div>
+    <div id="acctmsg" aria-live="polite"></div>
+  </div>
+  <div id="timer">0:00</div>
+
+  <main>
+    <div class="flank flank-left">
+      <div class="ledger">
+        <div>
+          <h2 class="label">Across</h2>
+          <ul id="acrosslist"></ul>
+        </div>
+        <div>
+          <h2 class="label">Down</h2>
+          <ul id="downlist"></ul>
+        </div>
+      </div>
+
+      <div class="assist">
+        <h2 class="label">Extra help</h2>
+        <p class="assisttext">Flags a row or column in red once its letters can no longer make a word.</p>
+        <button id="assistbtn" aria-pressed="false" aria-label="Extra help off"></button>
+      </div>
+
+      <div class="support">
+        <h2 class="label">Need a hint?</h2>
+        <p class="supporttext">A hint reveals one letter.</p>
+        <div class="hintrow">
+          <button id="hintbtn" aria-label="Get a hint: reveal one letter">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.8.8 1.3 1.5 1.5 2.5"/><path d="M9 17.5h6"/><path d="M10 21h4"/></svg>
+          </button>
+          <span id="hintcount" aria-live="polite"></span>
+        </div>
+        <div id="hintmsg" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <div class="center">
+      <h1>Quadrio</h1>
+      <p class="tagline">Fill the grid so every <b>row</b> and every <b>column</b> contains a real four-letter word. No repeats.</p>
+      <div class="boardarea">
+        <div class="board" id="board">
+          <div id="grid"></div>
+          <div class="rowmarks" id="rowmarks"></div>
+          <div class="colmarks" id="colmarks"></div>
+        </div>
+        <div class="undergrid">
+          <button id="dirbtn" data-tip="Typing: across — click to switch" aria-label="Typing direction: across">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h15"/><path d="m13 6 6 6-6 6"/></svg>
+        </button>
+          <span class="usep" aria-hidden="true">·</span>
+          <button id="clearlettersbtn" class="textbtn">Clear letters</button>
+        </div>
+        <div class="belowboard">
+          <div id="status" aria-live="polite"></div>
+          <button id="nextbtn" hidden>Click for next square.</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="flank flank-right">
+      <div class="squares">
+        <h2 class="label">Your squares <span class="count" id="solvecount"></span></h2>
+        <div class="statsrow">
+          <div class="squarestats" id="squarestats"></div>
+          <span class="wipezone" id="wipezone">
+            <button id="wipebtn" class="textbtn" data-tip="Clear history">Clear</button>
+            <button id="wipeno" class="textbtn" hidden>No</button>
+          </span>
+        </div>
+        <div id="solvesempty">Solved squares appear here.</div>
+        <div class="archive">
+          <div class="solves" id="solves"></div>
+          <div class="pgcol">
+            <div class="pgrow">
+              <button id="pgfirst" class="pg pgfast" aria-label="Newest squares" style="visibility:hidden">«</button>
+              <button id="pgnewer" class="pg" aria-label="Newer squares" style="visibility:hidden">‹</button>
+              <button id="pgolder" class="pg" aria-label="Older squares" style="visibility:hidden">›</button>
+              <button id="pglast" class="pg pgfast" aria-label="Oldest squares" style="visibility:hidden">»</button>
+            </div>
+            <span id="pgnum" aria-live="polite" style="visibility:hidden"></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer id="footer">
+    <button id="foothandle" aria-label="Show or hide the footer" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 14 6-6 6 6"/></svg>
+    </button>
+    <div class="foottext">Based on the <a href="https://raw.githubusercontent.com/dolph/dictionary/master/enable1.txt" target="_blank" rel="noopener">ENABLE</a> word list · 3,929 four-letter words · 57,967,754 unique squares · 222,830 including diagonals · solved words link to Merriam-Webster · © Quadrio 2026</div>
+  </footer>
+</div>
+
+<script>
+// ---- Sofia: put your PayPal.Me handle here ----
+
+const WORDS = "that this with from your have more will home page free time they site what news only when here also help view been were some like than find date back list name just over year into next used work last most data make them post city such best then good well info high each very book read need many user said does mail full life know days part real item must made line send type take area want long code show even much sign file link open case same both game care down size shop text rate form love john main call save card jobs food sale teen room join west look left team week note live plan cost test come cart play less blog park side give sell body east club road gift hard four blue easy star hand keep porn baby term film head cell self away once sure cars tell able gold arts past five upon says land done ever word bill talk nude kids true else mark rock tips plus auto edit fast fact unit tech meet feel bank risk town girl toys golf loan wide sort half step none lake fire chat loss face base near stay turn mean king copy drug pics cash seen port stop soon held mind lost tour menu hope wish role came fine hour bush huge kind move logo nice sent band lead went mode fund male took song late fall idea tool hill maps deal hold safe feed hall anti ship paid hair anal tree thus wall wine vote ways rule told feet sexy door cool uses java pass fees skin ring boys deep rest pool mini fish pack born race rape debt core sets wood rent dark host fair gets dead mike trip poor eyes farm lord hear goes wife hits zone jack flat flow path laws skip diet army gear lots firm jump ball goal sold wind palm pain oral ford edge root pink shot cold foot mass heat wild miss task soft fuel walk fuck wait rose pick load tags guys cock drop rich seem hire gave ones tits rank died inch snow camp fill gone fort gene disc boat icon ends cast felt soul aids flag atom iron void disk desk hong vice duty bear gain lack knew zoom blow clip wire tape spam acid cent null zero roll bath font beta fail jazz bags wear rare bars dual rise bird lady fans dell seat bids toll cape mine whom math dogs moon fear wars kept beat arms hide slow nine spot grow rain onto bass hole pets ride pair runs yeah evil euro peak dick salt bell lane kill ages plug cook bike lose seek tony kits soil matt exit keys wave holy acts mesh dean poll bond jean visa pure hell lens draw warm suck babe crew legs rear node lock mile bowl tank navy dish slot gray demo hate rice loop vary milk boot push alan dear beer jane earn twin bits suit chip char echo grid pull nick plot pump exam beds grey bold scan aged bulk cute para seed peer meat bang bone bugs gate tone busy neck wing tiny rail tube belt luck dial gang cake semi cafe till shoe sand seal lies pipe deck thin sick dose lets cats folk okay hist lift mall fell yard pour dust wiki butt kent adds ward roof kiss rush yoga lamp glad wins rack boss anna solo tall nova wake shit drum ease orgy tabs pine tend gulf rick hunt mill burn labs sole laid clay weak wise odds marc sons leaf silk wolf fits kick meal hurt slip cuts mars caps pill meta mint spin wash aims soap axis guns hero punk duke pace wage dawn carl coat doll reed mice temp vast wrap mood quiz beam tops shut thou mask coal lion beef hats surf hook cord crop lite sing tons hang damn hood fame eggs ruby stem drew tune corn puts grew trek ties brad jury tail lawn soup byte nose thru trim quit lung sees bull cole mart tale docs coin fake cure arch bomb harm deer oven noon cams piss mate chef isle slim comp spec midi tied dale boob oils sept unto pays lang stud fold slut pole mega bend moms glen lips pond tire chad josh drag ripe rely nuts nail span joke pads inns cups foam poem asks bean bias swim nano loud rats stat bios thee ruth pray pope jeep bare hung mono tile apps ciao knee prep pros cant duck dive raid volt dirt geek sink grip watt pins polo horn frog logs snap swap flip buzz nuke boom calm fork troy sims tray sage cave wool eyed grab oops trap fool dies jail lace ugly hart rows gods poly ears fist mere cons taxi worn shaw expo deny trio cube rugs crap fate oval soma tier earl cite mess rope dump hose pubs mild clan sync mesa hull shed memo tide funk reel bind rand buck acre lows aqua pest reef beth jill sofa tent hack dare hawk lamb junk poet epic sake sans lean dude alto gore cult dash cage jake ping flux rage rays acne libs undo halo gays exec doom bite myth weed dice quad dock mods hint buys pork barn fare bald fuji mold dame herb idle cove casa flex hash lazy carb pens worm deaf mats blah mime cunt keen peas owns zinc guru levy grad bras pale gaps tear nest gale idol moss cork dome heel yang dumb feat glow oaks norm ware jade foul keno seas pose goat sail bolt gage urge neon ours lone cope lime kirk spas jets yarn knit pike bent tate teat tote toea nett tees ante etna neat otto sett stet tets toot ates eats etas rete sate seta teas teth toit aeon anta asea deet eath haet iota nene nite tats teed thae tine titi toes tret leet nota sene tare teel tele tint tost tots alee anoa cete eses nets oast oats rote stoa tain taos tart tens toon tore aero aits anes dote eide erne hent oath oots rite sane sati soot tael teal tela toed tort trot alae ants cate dene dite eons eths haen hest hets hoot inti mete naan nana naoi noes odea rato rees rota seer sere sone tace tans taro teem tern tole tora aide airt aloe anas anon ansa cote dato dees dent doat erst haes hant heth hone inia nona olea oses rets roto shea sine snot tact tala tass thio toad toro twee weet acta adit ares aria arse awee dita eels eras etic fete hast heed hoes ilea lees lent lota naos nits ohia oleo raia rant rase riot roti sear seel seis sera shat snit sots tame tarn taut teds tilt tins tiro tola tori toss aahs ains alit anis cees dere doit dree elan eros etui hare hath hies hots lati lest loot mote ness ores ossa rede rein rhea roes sade sain sits sore soth taco tali tars tels tome torn tosh tout tsar twae agee ales atma cane coot deed dine eche emit enol epee feta hade haed haha hens hoer ions ires lase leas leer leno loti mite mott nada nans neem nide noel odes orts rath reis roan rots sect sire sith tads tahr toil tors twat tyee yeet aces airn alts amie cere cone dele dint dona dost dots emes erns etch geta haar hale heal heir hoed ides lats lien mitt moat nisi oars ogee ohed oles oohs osar otic rani seme sesh shes shoo slat sloe soar sora stir suet thro tods ween wite yett aals ache ados airs alas amen aunt beet cede cine dart dens dits doer dore doth drat ewes halt hehs helo heme hern hied hoar hora ilia inro lath lear leis lint mane moot nema newt noir nori olio rale redo rias rode sari sass scat sers sned soda thir toft toom torr trad tuna tuts twit wees amia anew anil cots dais dino dire eddo elhi heil hers holt hons ices ired lade lain lits loon lore loth maes meno meth nodi nolo nome nosh omen omit orle orra pate peat resh roar sadi sash scot seam sice silt sins slit sola sori stew tach taus tepa tews tils trod utas wane wean wets whee abet aced ahem ails alar ands awes bate cade cain celt cero cist coon dace dada deem deme dole duet eave edhs efts enow errs ewer eyen eyne fane fets fiat gees gent haem hahs hame haut hilt hins hisn iris keet leal lier lino lire lode loin loos mana mast meed mien nerd nidi noil ocas orad oust outs rend riel rile rotl sels shah shin sial sinh sorn tams thew tics toga tope urea waes weer whet yeti akee alec amas arid asci atap batt cess chao chit cion cire coed coni coos dado deco deil deli diel dolt dons fere gaen gait gane gest ghee hail heft hila hiss itch jete lied lute mano mare mise moan mots neep nods noma nowt odor ordo owes owse peen rash ream reds rins rood roue secs silo soli staw swat tapa taws tegs tirl toms torc tuis tule twas tyne unai wast wats wert woes wont ajee amah amin arco aril atop aura bene bott cans ceca cedi chai chia coho conn dahs darn daut dins dodo doss eger fats foes fret gaes gnat gree herd howe iced lair lari lass lend liar linn lira mead melt mina mist moas moth nard neif omer orca pees pent reft rhos rial rout sals seep shad sirs smit sods sris stey stow stun stye sues swot talc tang teak thaw tows toyo tram tref tuns twos tyes veto weel wost wots yean agio alme amis anga anus awed ayes bees bitt bota ceil clot coda colt deft dels dido diss eery egos elds emeu emir eyas eyer eyre fano flee frae gast gats geed gien haft herl hili hind hods hues hyte irid keto lame lash lehr lice lilt lins maar mire moos mort nape neap neve nils noun oboe olla pane pean pita rads recs rime roil rune sacs sard sego seif sewn shod shri sima sled sols stag toke tong wade wain wart welt wens wist wits wore yeas acme agas ager agon apes apse bait bane bets caca cadi caid calo carn chon coir cola coss dads dawt dime diol dors duit dune egis ells eves fade fain fart fens fore frat froe ghat gies glee haaf hebe hems hewn hols homo huts idem kata kite lars lido lieu liri loca lorn lout mace malt mans meme miso mole mora mute nabe naif narc nope nous oafs onus owed oyes pant pase peon pone pree raft redd rind roam rods rues runt ruse saga sews sift sord spae suer taka tike ting togs tolu topi trey trow tush tutu tyer tyre unde vees vent wale weal weir whit whoa wino woos wort aery afar agha agin alef alma amir arcs awns bree cels chin coca cosh daft dals dues dunt ebon eely egad ekes engs epha epos ergo eyra feal feod fess fino flea foin gaed gelt gens gist gits goas goer goon goth grat harl heap hews lads laic lama litu loco lowe lune mair mend molt mons moor mutt nave noms obit odic ogre opes pats peed pein pert peso rami reif rems rids rife rust ruts sabe sago sawn scar shew sics skee snaw sous spat sued swan taps tipi vane vena vest vets vita wans wren writ yare afro agar alls amid aper arty aves ayah ayin bast bats bine cads chis coco coil cred dahl defi dhal doge dols dorr egal emic faro fehs feme fern floe fora frit goos grot hams herm hoof hued hwan ichs ikat iwis jato jees jota kane koto lech loam loci lues lunt lwei maid mash maut meou milt mola moue nims nows nuns obes obia olds opts orcs oyer pare pear peel pele phat pies pint pots raga reap rift rocs ruer sall saws scad segs sham sipe slue snye sown soya stab sunn sura syne taxa ursa vase veer wair wend wile woad wons yens yore zeta abas ahoy alfa alow aped awol baas baht bint bise bots brae camo carr cepe clon cods coma cris cues dews dure ecus elms exes fado fend fiar fons gied girt grit haws hoya isms jest kaes keas khet lacs lard lept lids lief lima loft loge loom luna lust mels mhos miri modi mome mool morn mosh nags nevi nill nipa ogle ohms pelt phot pian pina pits poon pore prat rams rapt raya reek refs repo rude rued ruin ryot sang serf shmo sild slid snag sour sows spit stob suns tarp tavs thud toph tory trig tuft tyro udon ulan ulna vats vein vert vine voes wadi wame warn weds wilt yoni abed abos ague alga aver bade bani bead bens blet boas boon bore brat coft cols dago dams deke derm dope doty duos eked ergs fash feds fice fins flit foal fohn foss gala goad hake helm hove hows huns ills imid jeer jeon kana kats kine knot leap limo loaf lure mads mama meow mica milo moil mors nays nebs neum nogs noob okes opah oped ouds peal peri pias pier pion pith plea ragi rave raws regs robe roms sags saul scut sext shim shun sill skat slew snog soba soke suss tiki tody trop tufa turd udos vasa vera vies vise wail wand weft whin wiss zoea airy alif alms ammo arfs avos axes bale bier blae bode boos bort brie chid daws deva dirl doms duel dura dyne ecru emus exon fido fila gadi gaol gash geds gilt gins giro gnar gran hags haul hive hoke hoop hula hunh isba jeed jiao joes kaas kaon keel khat koan lams leek leke leud loch loof lope lude mage merl mirs muse naps nosy okeh ooze oxen pans pehs pied piso plat pois pooh prao proa psst rake rang rims rove ryes shag sike slam teff tidy tofu unau unco urns vain vina wads zees akin apod ashy asps awls bans bide blat boar boho bole bora bren brit bute chew clad coof cued curt dang deys dims dipt dopa dour dove dows dram duad duce duns duro dyes fads filo firn flan foil fond gars gels glia gosh gout halm hays hike hobo hogs hush imam jots kain kart kens kina kist koas kore lall lave leva lich limn lobe lown macs maim maun meld mems mids mols muts nabs nary nigh nixe nook obis okas oxes pact pend pile plie pons putt rags reps rill rive saps scam shay shog skit slaw smut soak soys stum unci vale vara veal vela vier vino waft weep wyte yins zest abri agma alba amus arak arvo auld axon baal beau bile blot boor broo caws cham chic clod clue coif croc dags dhow dill dong dorm dreg duct feus fico firs foci fuse gads gama genu ghis girn grin haps hasp holm hoys ibis ikon ixia kale keir kier kino kith laud leak levo lewd leys loll lour luce lyes lyse mach marl mell mews mils mocs momi muon mure nips nobs oink opal ouch owls paca padi pash peds phon pice pood qats rebs rhus rifs ryas sabs saki sigh smew snip snob soja sook sops sped suds vans vide vied vole weld wept whir abut ajar axed azan bash bema bice bins bola bran brio capo chaw cows cram debs delf dike ding durn dyer fard faun fems fids fief fife fled gals haik haze hops howl huic jess kern koel lags lava mabe mawn maya meek mope muni nibs nurd ogam oily okra pail pars pial pome posh pout psis raja raps rasp revs rigs rosy sank scow sips slag snib sobs soph spar sumo syce tabu tamp toff tsks tuba tung uvea vair veil vend vile whid yond yowe zein zine ziti ankh arbs arum avid axel axle azon bail bels bolo bosh bout caul ceps chow clew coke coop corm craw cuss cyan cyst daps devs digs diva dyed eddy farl fils gaun geld gems gids gled guan gust guts haji hank harp hips hoax hobs jole jute khan lays ling lobo lush lyre magi maws mayo mity mown mule mura nurl obol pecs phis pica pirn pish poco raki raze rook scag shul sibs skas slay slog surd swam tack tiff towy tugs twig urds uric vatu waif whew woof yech yods adze alps bads boil bred brin bros cays clam clef cogs cony crow curn dabs daze dray duci duds duma effs fawn feud fisc gaga gape grue honk hyla inks inly jinn jolt kadi kame karn keef kilt kins knar kola koss laps liny luau maud moll mows muns nark nazi orbs pals parr peag pech peep pili pods punt rips robs rolf salp slap slur sorb spue sudd supe thug tomb turf tzar unbe vail vars vial waur waws wham wich wipe wold yeld yids yodh yuan zits zoon achy agog albs alum ambo arks aryl axal bals beep bods bris bunt chay claw corf cosy coys crag crus curs dank dips dojo dory doum doze durr dyad eaux elks fave flue gams germ gird gnaw goof gude hurl ilex ilka jefe jilt jins joss kail kolo laze leks lops mags maul mewl moke muss myna ofay pacs pard pima pled pols puna ribs sark shiv skis slab slop sums syli tick trug tups viol weka wove wows wyes yell yews yirr zeal zoos abye awny bard bima bled blin bust buts cabs calf caph chap cops cowl cuds daks darb dibs dorp drab drek fang funs gall gaur giga glue gogo gown guar hark hemp holp hums iamb jars khis kilo kirn kors lank lavs lisp lobs lory luge malm mays meze mogs mony mush neuk paty pews phut prod racy rink ritz rudd ruga scab scop scud slob smog spew stub swag tubs upas urus veep wags wany waul whey whim wive woke wuss yald yams yawn yird yurt ally amok amps avow axil bach bhut birr carp chop clag coax cobs cory coxa curr demy dhak didy dink ditz drip dupe emyd fags fava flew floc fuss gaud gibe gild glut gnus gram heck howf impi irks izar kirs kris kues kyte mako migs obey odyl offs oldy opus orzo oxid pams pawn peek peke pepo perm phew poof qaid rube rums rynd samp snug spic suba sung sway tyke typo ukes vacs veld webs wogs yagi yaws yipe yule abbe acyl bams bedu berm brut cask clog conk crab crud curd dewy djin drib drys elmy fays flam flic fogs frow fume gags gill gong goop habu hadj homy idly idyl kami kief kiln lacy lakh maze mops muds nock nogg ouph pall papa pave paws pegs pity plod poms prau pule raff reck sack skid sulu swig toby tusk ulus vape vaus waps wasp wawl wigs winy yaud ylem yogi yows zeds zins zori auks awry begs birl brew bunn bura clap cloy coly curl cyme daff defy dork dull espy figs flaw foys frag furs geez geum glam gobo grim guac guid gush gyre holk hugs ilks illy imps jehu juts kohl kyat lark lily lube lums mixt mobs mojo moxa murr pang pows pram puce puns pyes ramp roup rung sagy simp skew skua slum sock spun sugh swab swop ughs wabs wary whap whig wops wyle wynn yill yoke ywis abba amyl baba bake barm baud beak beys boll bows boyo buns byes cark clop crib cuif damp daub dirk doff dung edgy envy eyry faze fley fops fowl fray fuci fuds gasp gigs gleg glom gowd goys hock hogg hymn hype iglu jape jarl jell joey kaif keek kefs lull maxi merk mibs miry monk nubs peps plew poke pong poop prom pula puri puss quai riff rimy romp scry scum snub souk sups swob tivy turk updo vagi vaws viga virl wady warp whop wisp wyns yays yuca apex berg blew bloc bong braw brrr buss caff chez chum cull cyma dugs fixt flus fobs frap frig fyce gabs gaum gaze gley glim gook grog hick jams kapa kayo kegs kepi kiwi leku loup mink moly mosk ouzo oxim pelf pony prey prim prow pyas pyre skeg spay subs tuff undy vang vibe vims vows waly whip wiry wonk yaps yawl yogh zoic abys balm barf bawd bays blam bogs bony brim brow byre calk coff coup cuke cwms ebbs fibs flay flog gips gobs gory grig guls gyro hubs jaws jura kafs kerf kibe limy lugs lulu luny mozo mums paps pawl pigs piny posy prof puli purs pyin repp skim slug spur sunk syke tump ulva vext vill vive whys wink woks yowl agly baps bawl bigs blaw brag bund burs cowy dogy dups fink flap forb furl garb gibs goji gorp gyri howk hunk hypo inby jibe jism jows kava keps khaf kudo limp luxe minx mull oyez paik pika plow pops prog puds puma quin rubs skag skep spud swum sybo tuck urbs vrow wark wily wynd yank yelp yips yobs bops bray buds buhr cagy calx chug comb culm curf czar dawk dubs flab flop gink husk ibex jags jive judo kaka kays kifs kike knap knur kobo lick limb logy mirk pips prig puls purr ropy roux ryke vigs viny viva waff yaks yerk bobs brig burr cusp dopy doux dunk dyke feck glop gums immy inky jays jeez jogs kiva knop mack miff mugs orby paly perk piki pleb prop ruly rusk scup slub smug umbo verb xyst yoks yuch yuga ably barb bask bibs bize bleb bonk buhl burd cubs davy doby drub duly dusk flak gaff gamy geck glob grok gull hyps jigs joys kabs kaki kaph kerb knob kook kops kyar lunk lutz luvs mock onyx oozy ovum palp ploy pouf purl quod sibb spiv suqs syph vavs wack yelk blur bosk burl chub dexy eggy fugs gamp glib grum huff jabs jowl kelp kips kobs koph kvas mick migg nixy numb pfft pfui pily plop prex quid spik spry sulk sump umps vlog wauk wimp womb wych yaff yaup yegg zags zany zill alky bark bisk blab bozo bums cavy curb cusk falx flax gamb gawp hulk hump kbar konk laky mumu peck pupa pyic ruff whiz wick yeuk zarf zing baff beck blip blob buoy caky duff fogy frug gimp glum hazy huck iffy jerk jibs kagu kink lurk mopy mumm oryx prez puke pung rump spaz yack yawp yolk zaps zigs babu balk birk boff bung cobb doxy faux friz fubs fury fuze gybe gyms jink juga jupe kemp luff musk pomp pugs puny qoph ruck sizy yock zeks biff bubo cuff futz fyke gapy gawk gyve hajj icky jube keck kuru lump pimp plum pock pugh quey typy vamp wavy yups zips bilk bock byrl crux dozy gaby glug gowk gunk guvs jaup jinx kudu murk phiz pogy puja pups quag typp vugs zerk zonk bogy burg fugu goby grub juba juke lynx muff quay vugh zyme bevy bubs bury cozy flub gulp jagg jamb jiff jugs mump putz waxy yuks zebu bunk burp fumy gyps jauk jeux jimp jock mazy muck mugg pipy busk foxy guff jouk pulp quip bumf poky blub bulb fozy guck puff razz bibb buff kyak yuck boxy bump pixy puck joky jibb vugg upby juju fizz fuzz".split(" ");
+const DICT = new Set(WORDS);
+const PREFIXES = new Set();
+for (const w of WORDS) { PREFIXES.add(w[0]); PREFIXES.add(w.slice(0, 2)); PREFIXES.add(w.slice(0, 3)); }
+const STORE_KEY = 'foursquare_solves';
+
+const boardEl = document.getElementById('board');
+const gridEl = document.getElementById('grid');
+const rowmarksEl = document.getElementById('rowmarks');
+const colmarksEl = document.getElementById('colmarks');
+const acrossEl = document.getElementById('acrosslist');
+const downEl = document.getElementById('downlist');
+const statusEl = document.getElementById('status');
+const timerEl = document.getElementById('timer');
+
+const cells = [];
+for (let r = 0; r < 4; r++) {
+  const rowEl = document.createElement('div');
+  rowEl.className = 'row';
+  for (let c = 0; c < 4; c++) {
+    const inp = document.createElement('input');
+    inp.className = 'cell';
+    inp.maxLength = 1;
+    inp.autocomplete = 'off';
+    inp.spellcheck = false;
+    inp.setAttribute('autocapitalize', 'characters');
+    inp.setAttribute('aria-label', 'Row ' + (r+1) + ' column ' + (c+1));
+    inp.dataset.r = r; inp.dataset.c = c;
+    rowEl.appendChild(inp);
+    cells.push(inp);
+  }
+  gridEl.appendChild(rowEl);
+}
+const rowMarks = [], colMarks = [], acrossItems = [], downItems = [];
+for (let i = 0; i < 4; i++) {
+  const m = document.createElement('div'); m.className = 'mark idle'; m.textContent = '—';
+  rowmarksEl.appendChild(m); rowMarks.push(m);
+  const m2 = document.createElement('div'); m2.className = 'mark idle'; m2.textContent = '—';
+  colmarksEl.appendChild(m2); colMarks.push(m2);
+  const li = document.createElement('li'); li.className = 'idle'; li.textContent = '····';
+  acrossEl.appendChild(li); acrossItems.push(li);
+  const li2 = document.createElement('li'); li2.className = 'idle'; li2.textContent = '····';
+  downEl.appendChild(li2); downItems.push(li2);
+}
+const at = (r, c) => cells[r * 4 + c];
+
+// ---- typing direction: across (h) or down (v) ----
+let dir = 'h';
+let lastCell = null;
+const dirBtn = document.getElementById('dirbtn');
+function toggleDir() {
+  dir = dir === 'h' ? 'v' : 'h';
+  const name = dir === 'h' ? 'across' : 'down';
+  dirBtn.classList.toggle('down', dir !== 'h');
+  dirBtn.setAttribute('aria-label', 'Typing direction: ' + name);
+  dirBtn.setAttribute('data-tip', 'Typing: ' + name + ' \u2014 click to switch');
+}
+dirBtn.addEventListener('click', () => {
+  toggleDir();
+  if (lastCell && !lastCell.readOnly) lastCell.focus();
+});
+
+// ---- persistent scoreboard ----
+let memStore = [];
+async function loadSolves() {
+  try {
+    if (window.storage) {
+      const res = await window.storage.get(STORE_KEY);
+      return res && res.value ? JSON.parse(res.value) : [];
+    }
+  } catch (e) { /* key missing or storage unavailable */ }
+  try {
+    const v = window.localStorage && localStorage.getItem(STORE_KEY);
+    if (v) return JSON.parse(v);
+  } catch (e) {}
+  return memStore;
+}
+async function saveSolves(arr) {
+  scheduleCloudPush();
+  memStore = arr;
+  try {
+    if (window.storage) { await window.storage.set(STORE_KEY, JSON.stringify(arr)); return; }
+  } catch (e) {}
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(arr)); } catch (e) {}
+}
+
+async function kvGet(key) {
+  try { if (window.storage) { const r = await window.storage.get(key); return r && r.value ? r.value : null; } } catch (e) {}
+  try { const v = window.localStorage && localStorage.getItem(key); if (v !== null) return v; } catch (e) {}
+  return null;
+}
+async function kvSet(key, val) {
+  try { if (window.storage) { await window.storage.set(key, val); return; } } catch (e) {}
+  try { localStorage.setItem(key, val); } catch (e) {}
+}
+
+function fmtTime(s) { return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
+function fmtDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('en', { month: 'short', day: 'numeric' }); // pinned: locale month names vary in width and re-crowd the badges
+}
+
+const claudeBtn = document.getElementById('claude');
+const THEMES = ['light', 'dark', 'matrix', 'clouds', 'candy'];
+const THEME_NAMES = { light: 'Light', dark: 'Dark', matrix: 'Matrix', clouds: 'Pixel Clouds', candy: 'Pink Clouds' };
+let themeIdx = 0;
+function applyTheme(name) {
+  if (!THEMES.includes(name)) name = 'light';
+  themeIdx = THEMES.indexOf(name);
+  document.body.classList.remove('dark', 'matrix', 'clouds', 'candy');
+  if (name !== 'light') document.body.classList.add(name);
+  claudeBtn.setAttribute('data-tip', 'Change theme');
+  claudeBtn.setAttribute('aria-label', 'Theme: ' + THEME_NAMES[name] + ' — click to cycle');
+}
+kvGet('quadrio_theme').then(v => applyTheme(v || 'light'));
+claudeBtn.addEventListener('click', () => {
+  const next = THEMES[(themeIdx + 1) % THEMES.length];
+  applyTheme(next);
+  kvSet('quadrio_theme', next);
+});
+
+const footerEl = document.getElementById('footer');
+const footHandle = document.getElementById('foothandle');
+function setFooter(open) {
+  footerEl.classList.toggle('open', open);
+  footHandle.setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+footHandle.addEventListener('click', () => setFooter(!footerEl.classList.contains('open')));
+let footTouchY = null;
+footerEl.addEventListener('touchstart', e => { footTouchY = e.touches[0].clientY; }, { passive: true });
+footerEl.addEventListener('touchend', e => {
+  if (footTouchY == null) return;
+  const dy = e.changedTouches[0].clientY - footTouchY;
+  if (dy < -18) setFooter(true);
+  else if (dy > 18) setFooter(false);
+  footTouchY = null;
+}, { passive: true });
+
+// ============ ACCOUNT SYNC (Supabase) ============
+// To activate: create a free Supabase project, then fill in these two values.
+// Full setup steps in SETUP-LOGIN.md next to this file. Empty values = feature stays hidden.
+const SUPABASE_URL = 'https://fjymivfjkfhssglvzgbm.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqeW1pdmZqa2Zoc3NnbHZ6Z2JtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzNTA3ODksImV4cCI6MjA5ODkyNjc4OX0.i8YYgq5Z-GOqF3Ea1A5uE7X_BAA3riTTNpD0MhmXVwg';
+
+let sb = null;            // supabase client
+let sbUser = null;        // current user
+const profileBtn = document.getElementById('profile');
+const acctPanel = document.getElementById('acctpanel');
+const acctMsg = document.getElementById('acctmsg');
+
+let acctMsgTimer = null;
+function acctSay(text, bad) {
+  clearTimeout(acctMsgTimer);
+  acctMsg.className = bad ? 'bad' : '';
+  acctMsg.textContent = text;
+  if (text && !acctPanel.hidden) startAcctMsgCountdown();
+}
+function startAcctMsgCountdown() {
+  clearTimeout(acctMsgTimer);
+  if (!acctMsg.textContent) return;
+  acctMsgTimer = setTimeout(() => { acctMsg.textContent = ''; acctMsg.className = ''; }, 4000);
+}
+function paintAcct() {
+  const inEl = document.getElementById('acctin'), outEl = document.getElementById('acctout');
+  inEl.hidden = !sbUser; outEl.hidden = !!sbUser;
+  profileBtn.classList.toggle('on', !!sbUser);
+  profileBtn.setAttribute('aria-label', sbUser ? 'Account \u00b7 synced' : 'Sign in');
+  if (sbUser) document.getElementById('acctwho').textContent = sbUser.email || 'you';
+}
+
+async function cloudMerge() { // union cloud + local, write both ways
+  if (!sb || !sbUser) return;
+  try {
+    const { data, error } = await sb.from('quadrio_solves').select('solves').eq('user_id', sbUser.id).maybeSingle();
+    if (error) throw error;
+    const cloud = (data && Array.isArray(data.solves)) ? data.solves : [];
+    const have = new Set(solvesCache.map(s => canonGrid((s.g || '').toUpperCase())));
+    let added = 0;
+    for (const s of cloud) {
+      if (!s || typeof s.g !== 'string' || !/^[A-Za-z]{16}$/.test(s.g)) continue;
+      const k = canonGrid(s.g.toUpperCase());
+      if (have.has(k)) continue;
+      have.add(k); solvesCache.push(s); added++;
+    }
+    solvesCache = dedupeMirrors(solvesCache);
+    await saveSolves(solvesCache);
+    pageIdx = 0; renderSolves(solvesCache);
+    await cloudPush();
+    if (added) acctSay('Added ' + added + ' square' + (added > 1 ? 's' : '') + ' from your other devices.');
+  } catch (e) { acctSay('Sync hiccup \u2014 your squares are safe locally.', true); }
+}
+let pushTimer = null;
+async function cloudPush() {
+  if (!sb || !sbUser) return;
+  try {
+    // merge-before-push: union with the cloud so a second device's new squares are never clobbered
+    const { data } = await sb.from('quadrio_solves').select('solves').eq('user_id', sbUser.id).maybeSingle();
+    const cloud = (data && Array.isArray(data.solves)) ? data.solves : [];
+    const have = new Set(solvesCache.map(s => canonGrid((s.g || '').toUpperCase())));
+    let gained = false;
+    for (const s of cloud) {
+      if (!s || typeof s.g !== 'string' || !/^[A-Za-z]{16}$/.test(s.g)) continue;
+      const k = canonGrid(s.g.toUpperCase());
+      if (have.has(k)) continue;
+      have.add(k); solvesCache.push(s); gained = true;
+    }
+    if (gained) {
+      solvesCache = dedupeMirrors(solvesCache);
+      memStore = solvesCache;
+      try { if (window.storage) await window.storage.set(STORE_KEY, JSON.stringify(solvesCache)); } catch (e) {}
+      try { localStorage.setItem(STORE_KEY, JSON.stringify(solvesCache)); } catch (e) {}
+      renderSolves(solvesCache);
+    }
+    await sb.from('quadrio_solves').upsert({ user_id: sbUser.id, solves: solvesCache, updated_at: new Date().toISOString() });
+  } catch (e) { /* local always wins; retry on next change */ }
+}
+function scheduleCloudPush() {
+  if (!sb || !sbUser) return;
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(cloudPush, 1200);
+}
+
+async function initAccount() {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;           // not configured: stay hidden
+  profileBtn.hidden = false;
+  // panel lifecycle: hover opens, leaving both closes (grace 300ms), typing holds it, click works for touch
+  profileBtn.addEventListener('click', e => { e.stopPropagation(); acctPanel.hidden = false; startAcctMsgCountdown(); });
+  acctPanel.addEventListener('click', e => e.stopPropagation());
+  let acctClose = null, overIcon = false, overPanel = false; // our own books — no :hover queries (zoom hit-testing lies)
+  const acctHold = () => { clearTimeout(acctClose); acctPanel.hidden = false; startAcctMsgCountdown(); };
+  const acctRelease = () => {
+    clearTimeout(acctClose);
+    acctClose = setTimeout(() => {
+      if (overIcon || overPanel) return;
+      const em = document.getElementById('acctemail');
+      const focused = acctPanel.contains(document.activeElement);
+      if (focused && !(document.activeElement === em && em.value.trim() === '')) return; // real typing: stay
+      if (focused) em.blur();
+      acctPanel.hidden = true;
+    }, 140);
+  };
+  profileBtn.addEventListener('pointerenter', () => { overIcon = true; acctHold(); });
+  profileBtn.addEventListener('pointerleave', () => { overIcon = false; acctRelease(); });
+  acctPanel.addEventListener('pointerenter', () => { overPanel = true; acctHold(); });
+  acctPanel.addEventListener('pointerleave', () => { overPanel = false; acctRelease(); });
+  document.getElementById('acctemail').addEventListener('blur', acctRelease);
+  if (location.protocol === 'file:') {
+    document.getElementById('acctsend').addEventListener('click', () => acctSay('Not available in this preview.', true));
+    return;
+  }
+  try {
+    const mod = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+    sb = mod.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  } catch (e) {
+    acctSay('Couldn\u2019t load the sign-in service.', true);
+    return;
+  }
+  document.getElementById('acctgoogle').addEventListener('click', async () => {
+    acctSay('Opening Google\u2026');
+    const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + location.pathname } });
+    if (error) acctSay('Google sign-in failed: ' + error.message, true);
+  });
+  document.getElementById('acctsend').addEventListener('click', async () => {
+    const email = document.getElementById('acctemail').value.trim();
+    if (!/^\S+@\S+\.\S+$/.test(email)) { acctSay('That email doesn\u2019t look right.', true); return; }
+    const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + location.pathname } });
+    acctSay(error ? 'Couldn\u2019t send: ' + error.message : 'Check your inbox for the sign-in link.', !!error);
+  });
+  document.getElementById('acctsignout').addEventListener('click', async () => {
+    await sb.auth.signOut();
+    acctSay('');
+  });
+  sb.auth.onAuthStateChange((_evt, session) => {
+    sbUser = session ? session.user : null;
+    paintAcct();
+    if (sbUser) cloudMerge();
+  });
+  const { data } = await sb.auth.getSession();
+  sbUser = data.session ? data.session.user : null;
+  paintAcct();
+  if (sbUser) cloudMerge();
+}
+initAccount();
+
+// ---- pixel confetti ----
+function popConfetti(big) {
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const old = document.getElementById('confetti');
+  if (old) old.remove();
+  const cv = document.createElement('canvas');
+  cv.id = 'confetti';
+  cv.width = innerWidth; cv.height = innerHeight;
+  cv.style.cssText = 'position:fixed;inset:0;z-index:90;pointer-events:none';
+  document.body.appendChild(cv);
+  const ctx = cv.getContext('2d');
+  const gr = document.getElementById('grid').getBoundingClientRect();
+  const ox = gr.left + gr.width / 2, oy = gr.top + gr.height * 0.3;
+  const COLORS = ['#E53935','#FB8C00','#FDD835','#43A047','#1E88E5','#8E24AA','#D81B60'];
+  const N = big ? 220 : 130;
+  const P = [];
+  for (let i = 0; i < N; i++) {
+    const a = Math.random() * Math.PI - Math.PI / 2 - Math.PI / 4; // upward fan
+    const sp = 4 + Math.random() * 7;
+    P.push({
+      x: ox + (Math.random() - .5) * gr.width * .5,
+      y: oy + (Math.random() - .5) * 30,
+      vx: Math.cos(a) * sp * (Math.random() < .5 ? 1 : -1),
+      vy: Math.sin(a) * sp - 3,
+      s: [3, 4, 5, 6][Math.floor(Math.random() * 4)],
+      c: COLORS[Math.floor(Math.random() * COLORS.length)],
+      life: 45 + Math.random() * 35,
+      flip: Math.random() * 40 | 0,
+    });
+  }
+  let t = 0;
+  (function tick() {
+    t++;
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    let alive = 0;
+    for (const p of P) {
+      if (p.life <= 0) continue;
+      alive++;
+      p.life--;
+      p.vy += 0.27;             // gravity
+      p.vx *= 0.99; p.vy *= 0.995;
+      p.x += p.vx; p.y += p.vy;
+      const w = ((t + p.flip) % 44 < 22) ? p.s : Math.max(2, p.s - 2); // pixel tumble
+      ctx.fillStyle = p.c;
+      ctx.globalAlpha = p.life < 20 ? p.life / 20 : 1;
+      ctx.fillRect(Math.round(p.x / 2) * 2, Math.round(p.y / 2) * 2, w, p.s); // snapped to the pixel grid
+    }
+    ctx.globalAlpha = 1;
+    if (alive && t < 120) requestAnimationFrame(tick);
+    else cv.remove();
+  })();
+}
+
+let pageIdx = 0;
+let freshKey = null; // the just-solved square, shown green until Next Square
+let delArmKey = null; // square awaiting delete confirmation
+const PAGE_SIZE = 6;
+function renderSolves(solves) {
+  const wrap = document.getElementById('solves');
+  const empty = document.getElementById('solvesempty');
+  const count = document.getElementById('solvecount');
+  const stats = document.getElementById('squarestats');
+  wrap.innerHTML = '';
+  const stars = solves.filter(s => s.b).length;
+  count.innerHTML = solves.length
+    ? '\u00b7 ' + solves.length + (stars
+        ? ' / <span class="capic capstar" data-tip="\u2605 = w/ diagonals">' + stars + ' \u2605</span>'
+        : '')
+    : '';
+  empty.style.display = solves.length ? 'none' : 'block';
+  document.querySelector('.statsrow').style.display = solves.length ? 'flex' : 'none';
+  document.getElementById('wipezone').hidden = !solves.length;
+  if (solves.length) {
+    const timed = solves.filter(s => !s.r);
+    stats.textContent = timed.length ? 'Best ' + fmtTime(Math.min.apply(null, timed.map(s => s.t))) : '';
+  } else stats.textContent = '';
+  const list = solves.slice().reverse();
+  const pages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+  pageIdx = Math.min(pageIdx, pages - 1);
+  const showPg = list.length > PAGE_SIZE ? 'visible' : 'hidden';
+  const showFast = pages >= 3 ? showPg : 'hidden';
+  const pg = id => document.getElementById(id);
+  pg('pgnewer').style.visibility = showPg;   pg('pgolder').style.visibility = showPg;
+  pg('pgnum').style.visibility = showPg;
+  pg('pgnum').textContent = (pageIdx + 1) + '/' + pages;
+  pg('pgfirst').style.visibility = showFast; pg('pglast').style.visibility = showFast;
+  pg('pgnewer').disabled = pg('pgfirst').disabled = pageIdx === 0;
+  pg('pgolder').disabled = pg('pglast').disabled = pageIdx >= pages - 1;
+  list.slice(pageIdx * PAGE_SIZE, (pageIdx + 1) * PAGE_SIZE).forEach(s => {
+    const fig = document.createElement('figure');
+    fig.className = 'solve' + (freshKey && canonGrid((s.g || '').toUpperCase()) === freshKey ? ' fresh' : '');
+    const mini = document.createElement('div');
+    mini.className = 'mini';
+    for (let r = 0; r < 4; r++) {
+      const row = document.createElement('div'); row.className = 'r';
+      for (let c = 0; c < 4; c++) {
+        const cell = document.createElement('div'); cell.className = 'c';
+        cell.textContent = s.g[r * 4 + c];
+        row.appendChild(cell);
+      }
+      mini.appendChild(row);
+    }
+    const cap = document.createElement('figcaption');
+    const bulbSvg = '<svg class="capbulb" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.8.8 1.3 1.5 1.5 2.5"/><path d="M9 17.5h6"/><path d="M10 21h4"/></svg>';
+    const base = (s.t != null ? fmtTime(s.t) : '\u2014') + '\u2009\u00b7\u2009' + fmtDate(s.d);
+    const nHints = s.h || (s.r ? 3 : 0);
+    const helped = !!s.e;
+    const star = s.b
+      ? '<span class="capic capstar" data-tip="+ 2\u00d7 diagonals!">\u2605</span>'
+      : '';
+    let assistTip = '';
+    if (nHints && helped) assistTip = 'Help + ' + nHints + '\u00d7 hint' + (nHints > 1 ? 's' : '') + ' used';
+    else if (nHints) assistTip = nHints + '\u00d7 hint' + (nHints > 1 ? 's' : '') + ' used';
+    else if (helped) assistTip = 'Help used';
+    const bulb = assistTip
+      ? '<span class="capic" data-tip="' + assistTip + '">' + bulbSvg + '</span>'
+      : '';
+    const icons = (star && bulb)
+      ? '<span class="capduo">' + star + bulb + '</span>'
+      : star + bulb;
+    const key = canonGrid((s.g || '').toUpperCase());
+    if (delArmKey === key) {
+      cap.innerHTML = '<span class="capconfirm">Delete? <button class="cyes" aria-label="Yes, delete">\u2713</button> \u00b7 <button class="cno" aria-label="No, keep">\u00d7</button></span>';
+    } else {
+      cap.innerHTML = '<span>' + base + '</span>' + (icons ? '<span class="capicons">' + icons + '</span>' : '');
+    }
+    const del = document.createElement('button');
+    del.className = 'solvedel'; del.textContent = '\u00d7';
+    del.setAttribute('aria-label', 'Delete this square');
+    del.addEventListener('click', e => {
+      e.stopPropagation();
+      delArmKey = key;
+      renderSolves(solvesCache);
+    });
+    fig.appendChild(mini); fig.appendChild(cap); fig.appendChild(del);
+    if (delArmKey === key) {
+      cap.querySelector('.cyes').addEventListener('click', async e => {
+        e.stopPropagation();
+        delArmKey = null;
+        solvesCache = solvesCache.filter(x => canonGrid((x.g || '').toUpperCase()) !== key);
+        await saveSolves(solvesCache);
+        renderSolves(solvesCache);
+      });
+      cap.querySelector('.cno').addEventListener('click', e => {
+        e.stopPropagation();
+        delArmKey = null;
+        renderSolves(solvesCache);
+      });
+    }
+    wrap.appendChild(fig);
+  });
+}
+function dedupeMirrors(list) {
+  const byCanon = new Map();
+  const better = (a, b) => {
+    if (!!a.r !== !!b.r) return a.r ? b : a;                      // timed beats revealed
+    const at = a.t == null ? Infinity : a.t, bt = b.t == null ? Infinity : b.t;
+    if (at !== bt) return at < bt ? a : b;                        // faster beats slower
+    return a.d <= b.d ? a : b;                                    // earlier beats later
+  };
+  for (const s of list) {
+    const k = canonGrid((s.g || '').toUpperCase());
+    byCanon.set(k, byCanon.has(k) ? better(byCanon.get(k), s) : s);
+  }
+  return [...byCanon.values()].sort((a, b) => (a.d < b.d ? -1 : 1));
+}
+
+
+let solvesCache = [];
+loadSolves().then(s => {
+  const cleaned = dedupeMirrors(s);
+  solvesCache = cleaned;
+  renderSolves(cleaned);
+  if (cleaned.length !== s.length) saveSolves(cleaned); // silently retire mirror doubles
+});
+
+document.getElementById('pgfirst').addEventListener('click', () => { pageIdx = 0; renderSolves(solvesCache); });
+document.getElementById('pgnewer').addEventListener('click', () => { pageIdx = Math.max(0, pageIdx - 1); renderSolves(solvesCache); });
+document.getElementById('pgolder').addEventListener('click', () => { pageIdx = pageIdx + 1; renderSolves(solvesCache); });
+document.getElementById('pglast').addEventListener('click', () => { pageIdx = 1e9; renderSolves(solvesCache); });
+
+const wipeBtn = document.getElementById('wipebtn');
+const wipeNo = document.getElementById('wipeno');
+let wipeState = 0; // 0: Clear -> 1: Yes/No -> 2: Sure?
+function paintWipe() {
+  wipeBtn.textContent = ['Clear', 'Yes', 'Sure?'][wipeState];
+  wipeNo.hidden = wipeState !== 1;
+  if (wipeState === 0) wipeBtn.setAttribute('data-tip', 'Clear history');
+  else wipeBtn.removeAttribute('data-tip');
+}
+wipeBtn.addEventListener('click', async e => {
+  e.stopPropagation();
+  if (wipeState < 2) { wipeState++; paintWipe(); return; }
+  wipeState = 0; paintWipe();
+  solvesCache = [];
+  await saveSolves([]);
+  renderSolves([]);
+});
+wipeNo.addEventListener('click', e => { e.stopPropagation(); wipeState = 0; paintWipe(); });
+document.addEventListener('click', () => {
+  if (wipeState) { wipeState = 0; paintWipe(); }
+  if (delArmKey) { delArmKey = null; renderSolves(solvesCache); }
+  if (!acctPanel.hidden) acctPanel.hidden = true;
+});
+paintWipe();
+
+// ---- input handling ----
+let solved = false;
+let timing = false;      // has this attempt begun?
+let running = false;     // is the clock ticking right now?
+let elapsedMs = 0;       // accumulated play time
+let lastTick = null;
+let timerInterval = null;
+
+function currentSecs() {
+  return Math.floor((elapsedMs + (running ? Date.now() - lastTick : 0)) / 1000);
+}
+function paintTimer() { timerEl.textContent = fmtTime(currentSecs()); }
+function resumeTimer() {
+  if (!timing || solved || running) return;
+  running = true;
+  lastTick = Date.now();
+  timerInterval = setInterval(paintTimer, 500);
+}
+function pauseTimer() {
+  if (!running) return;
+  elapsedMs += Date.now() - lastTick;
+  running = false;
+  clearInterval(timerInterval);
+  paintTimer();
+}
+function startTimer() {
+  if (timing) return;
+  timing = true;
+  resumeTimer();
+}
+function resetTimer() {
+  pauseTimer();
+  timing = false; elapsedMs = 0; lastTick = null;
+  timerEl.textContent = '0:00';
+}
+// ---- in-progress attempt persists across leaving/closing the page ----
+const ATTEMPT_KEY = 'foursquare_attempt';
+let attemptSaveT = null;
+function persistAttempt() {
+  const letters = cells.map(c => c.value || '.').join('');
+  const ms = elapsedMs + (running ? Date.now() - lastTick : 0);
+  const live = /[A-Z]/i.test(letters) || ms > 500 || hintsUsed > 0;
+  if (solved || !live) { kvSet(ATTEMPT_KEY, ''); return; }
+  kvSet(ATTEMPT_KEY, JSON.stringify({ g: letters, ms: ms, h: hintsUsed, hm: [...hintedMask], e: assistUsed ? 1 : 0 }));
+}
+function scheduleAttemptSave() {
+  clearTimeout(attemptSaveT);
+  attemptSaveT = setTimeout(persistAttempt, 600);
+}
+
+// pause while the tab is hidden; resume on return
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { pauseTimer(); persistAttempt(); } else { resumeTimer(); }
+});
+window.addEventListener('pagehide', () => { pauseTimer(); persistAttempt(); });
+
+cells.forEach(inp => {
+  inp.addEventListener('input', () => {
+    const v = inp.value.replace(/[^a-zA-Z]/g, '').toUpperCase();
+    inp.value = v.slice(-1);
+    hintedMask.delete(+inp.dataset.r * 4 + +inp.dataset.c); // typed over: the hint no longer owns this cell
+    startTimer();
+    if (inp.value) {
+      const r = +inp.dataset.r, c = +inp.dataset.c;
+      const next = dir === 'h'
+        ? (c < 3 ? at(r, c + 1) : (r < 3 ? at(r + 1, 0) : null))
+        : (r < 3 ? at(r + 1, c) : (c < 3 ? at(0, c + 1) : null));
+      if (next) next.focus();
+    }
+    validate();
+    scheduleAttemptSave();
+  });
+  inp.addEventListener('focus', () => { lastCell = inp; });
+  inp.addEventListener('pointerdown', () => {
+    if (document.activeElement === inp) toggleDir();
+  });
+  inp.addEventListener('keydown', e => {
+    const r = +inp.dataset.r, c = +inp.dataset.c;
+    if (e.key === 'Backspace' && !inp.value) {
+      const prev = dir === 'h'
+        ? (c > 0 ? at(r, c - 1) : (r > 0 ? at(r - 1, 3) : null))
+        : (r > 0 ? at(r - 1, c) : (c > 0 ? at(3, c - 1) : null));
+      if (prev) { prev.focus(); prev.value = ''; validate(); scheduleAttemptSave(); e.preventDefault(); }
+    }
+    if (e.key === 'ArrowRight' && c < 3) { at(r, c + 1).focus(); e.preventDefault(); }
+    if (e.key === 'ArrowLeft'  && c > 0) { at(r, c - 1).focus(); e.preventDefault(); }
+    if (e.key === 'ArrowDown'  && r < 3) { at(r + 1, c).focus(); e.preventDefault(); }
+    if (e.key === 'ArrowUp'    && r > 0) { at(r - 1, c).focus(); e.preventDefault(); }
+  });
+});
+
+// ---- extra help toggle ----
+let assistMode = false;
+const assistBtn = document.getElementById('assistbtn');
+function paintAssist() {
+  assistBtn.setAttribute('aria-pressed', assistMode ? 'true' : 'false');
+  assistBtn.setAttribute('aria-label', 'Extra help ' + (assistMode ? 'on' : 'off'));
+}
+assistBtn.addEventListener('click', () => {
+  assistMode = !assistMode;
+  paintAssist();
+  validate();
+});
+
+// ---- validation ----
+function lineHasCandidate(pattern) { // lowercase, spaces = blanks
+  outer: for (let k = 0; k < WORDS.length; k++) {
+    const w = WORDS[k];
+    for (let i = 0; i < 4; i++) {
+      const ch = pattern[i];
+      if (ch !== ' ' && w[i] !== ch) continue outer;
+    }
+    return true;
+  }
+  return false;
+}
+function mwLink(w, text) {
+  const a = document.createElement('a');
+  a.href = 'https://www.merriam-webster.com/dictionary/' + w.toLowerCase();
+  a.target = '_blank'; a.rel = 'noopener';
+  a.textContent = text || w;
+  return a;
+}
+function setSlot(mark, li, word, state) {
+  li.textContent = ''; li.className = state === 'partial' ? 'idle' : state;
+  mark.className = 'mark ' + (state === 'partial' ? 'idle' : state);
+  if (state === 'idle' || state === 'partial') {
+    li.textContent = (word + '····').slice(0, 4).replaceAll(' ', '·') || '····';
+    mark.textContent = '—';
+  } else if (state === 'ok') {
+    li.appendChild(mwLink(word)); mark.textContent = '✓';
+  } else if (state === 'bad') {
+    li.textContent = word; mark.textContent = '✕';
+  } else if (state === 'dead') {
+    li.textContent = word; mark.textContent = '\u2715';
+  } else if (state === 'dup') {
+    li.textContent = word;
+    const x = document.createElement('span'); x.className = 'x2'; x.textContent = '2×';
+    li.appendChild(x);
+    mark.textContent = '2×';
+  }
+}
+
+function validate() {
+  if (assistMode && cells.some(c => c.value)) assistUsed = true;
+  const g = [];
+  for (let r = 0; r < 4; r++) g.push([0,1,2,3].map(c => at(r, c).value || ' ').join(''));
+  const rows = g;
+  const colsArr = [0,1,2,3].map(c => [0,1,2,3].map(r => g[r][c]).join(''));
+  const all = rows.concat(colsArr);
+
+  const counts = {};
+  all.forEach(w => {
+    if (!w.includes(' ') && DICT.has(w.toLowerCase())) counts[w] = (counts[w] || 0) + 1;
+  });
+
+  let allOk = true;
+  all.forEach((w, i) => {
+    const mark = i < 4 ? rowMarks[i] : colMarks[i - 4];
+    const li = i < 4 ? acrossItems[i] : downItems[i - 4];
+    let state;
+    if (w === '    ') state = 'idle';
+    else if (w.includes(' ')) state = (assistMode && !lineHasCandidate(w.toLowerCase())) ? 'dead' : 'partial';
+    else if (!DICT.has(w.toLowerCase())) state = 'bad';
+    else if (counts[w] > 1) state = 'dup';
+    else state = 'ok';
+    if (state !== 'ok') allOk = false;
+    setSlot(mark, li, state === 'dead' ? w.replaceAll(' ', '\u00b7') : w.trim(), state);
+  });
+
+  cells.forEach(inp => inp.classList.remove('dupword'));
+  all.forEach((w, i) => {
+    if (!w.includes(' ') && counts[w] > 1) {
+      for (let k = 0; k < 4; k++) {
+        const cell = i < 4 ? at(i, k) : at(k, i - 4);
+        cell.classList.add('dupword');
+      }
+    }
+  });
+
+  if (!solved) { statusEl.textContent = ''; statusEl.className = ''; }
+  if (allOk && !solved) {
+    const G = g.join('').toUpperCase();
+    if (solvesCache.some(s => canonGrid(s.g) === canonGrid(G))) {
+      statusEl.textContent = 'Already on your board. Make a different square.';
+      statusEl.className = 'note';
+      return; // not a solve: timer keeps running, hints stay spent, no Next Square
+    }
+    solved = true;
+    pauseTimer();
+    const secs = currentSecs();
+    boardEl.classList.add('won');
+    cells.forEach(c => c.readOnly = true);
+    if (document.activeElement && document.activeElement.classList.contains('cell')) document.activeElement.blur();
+    clearTimeout(attemptSaveT);
+    kvSet(ATTEMPT_KEY, '');
+    document.getElementById('nextbtn').hidden = false;
+    const d1 = g[0][0] + g[1][1] + g[2][2] + g[3][3];
+    const d2 = g[3][0] + g[2][1] + g[1][2] + g[0][3];
+    const d2r = d2[3] + d2[2] + d2[1] + d2[0]; // the mirror orientation reads this diagonal reversed
+    const tenOk = d => DICT.has(d.toLowerCase()) && d !== d1 && !all.includes(d) && !all.includes(d1);
+    const diagBonus = DICT.has(d1.toLowerCase()) && (tenOk(d2) || tenOk(d2r));
+    popConfetti(diagBonus);
+    recordSolve(g.join(''), secs, diagBonus);
+  }
+}
+
+function transposeGrid(g) {
+  let t = '';
+  for (let c = 0; c < 4; c++) for (let r = 0; r < 4; r++) t += g[r * 4 + c];
+  return t;
+}
+function canonGrid(g) {
+  const t = transposeGrid(g);
+  return g < t ? g : t;
+}
+async function recordSolve(gridStr, secs, bonus) {
+  const g = gridStr.toUpperCase();
+  const exact = solvesCache.some(s => s.g === g);
+  if (exact) {
+    statusEl.textContent = 'Solved in ' + fmtTime(secs) + '. Already on your board.';
+    return;
+  }
+  if (solvesCache.some(s => canonGrid(s.g) === canonGrid(g))) {
+    statusEl.textContent = 'Solved in ' + fmtTime(secs) + '. Its mirror is already on your board.';
+    return;
+  }
+  const entry = { g: g, t: secs, d: new Date().toISOString() };
+  if (bonus) entry.b = 1;
+  if (hintedMask.size > 0) entry.h = hintedMask.size; // badge counts hint letters in the winning grid
+  if (assistUsed) entry.e = 1; // Extra Help was on while playing
+  solvesCache.push(entry);
+  freshKey = canonGrid(g);
+  pageIdx = 0;
+  await saveSolves(solvesCache);
+  renderSolves(solvesCache);
+  if (bonus) {
+    statusEl.innerHTML = 'Solved in ' + fmtTime(secs) + ' <span class="statstar" data-tip="+ 2\u00d7 diagonals!">★</span>';
+  } else {
+    statusEl.textContent = 'Solved in ' + fmtTime(secs)
+      + (hintsUsed > 0 ? ' \u00b7 ' + hintsUsed + '\u00d7 hint' + (hintsUsed > 1 ? 's' : '') : '')
+      + '.';
+  }
+}
+
+// ---- controls ----
+document.getElementById('clearlettersbtn').addEventListener('click', () => {
+  hintedMask.clear(); // letters gone, hint provenance gone (the fee stays paid)
+  if (solved) return;
+  cells.forEach(c => { c.value = ''; });
+  hintMsg.textContent = ''; hintMsg.className = '';
+  validate();
+  scheduleAttemptSave();
+  at(0, 0).focus();
+});
+
+document.getElementById('nextbtn').addEventListener('click', () => {
+  cells.forEach(c => { c.value = ''; c.readOnly = false; });
+  boardEl.classList.remove('won');
+  statusEl.textContent = '';
+  document.getElementById('nextbtn').hidden = true;
+  solved = false;
+  freshKey = null;
+  renderSolves(solvesCache);
+  hintsUsed = 0;
+  hintedMask.clear();
+  assistUsed = false;
+  paintHints();
+  hintMsg.textContent = ''; hintMsg.className = '';
+  resetTimer();
+  kvSet(ATTEMPT_KEY, '');
+  validate();
+  at(0, 0).focus();
+});
+
+// ---- hint solver: finds a completion consistent with current letters ----
+// opts.unique: completion must not already be on the board (mirrors count)
+// opts.diag:   completion must be diagonal-perfect in at least one orientation
+function findCompletion(opts) {
+  opts = opts || {};
+  const budget = opts.budget || 600000;
+  let nodes = 0, exhausted = false;
+  const owned = opts.unique ? new Set(solvesCache.map(s => canonGrid(s.g))) : null;
+  const pat = [];
+  for (let r = 0; r < 4; r++) pat.push([0,1,2,3].map(c => (at(r, c).value || ' ').toLowerCase()).join(''));
+  const rowsSol = [];
+  function leafOk() {
+    const cols = [0,1,2,3].map(c => rowsSol.map(w => w[c]).join(''));
+    const all8 = rowsSol.concat(cols);
+    if (new Set(all8).size !== 8) return false;
+    if (owned) {
+      const G = rowsSol.join('').toUpperCase();
+      if (owned.has(canonGrid(G))) return false;
+    }
+    if (opts.diag) {
+      const d1 = rowsSol[0][0] + rowsSol[1][1] + rowsSol[2][2] + rowsSol[3][3];
+      const d2 = rowsSol[3][0] + rowsSol[2][1] + rowsSol[1][2] + rowsSol[0][3];
+      const d2r = d2[3] + d2[2] + d2[1] + d2[0];
+      const ok = d => DICT.has(d) && d !== d1 && all8.indexOf(d) < 0 && all8.indexOf(d1) < 0;
+      if (!(DICT.has(d1) && (ok(d2) || ok(d2r)))) return false;
+    }
+    return true;
+  }
+  function dfs(r, colPre) {
+    if (exhausted) return false;
+    if (r === 4) return leafOk();
+    outer: for (let k = 0; k < WORDS.length; k++) {
+      if (++nodes > budget) { exhausted = true; return false; }
+      const w = WORDS[k];
+      for (let i = 0; i < 4; i++) if (pat[r][i] !== ' ' && w[i] !== pat[r][i]) continue outer;
+      for (let i = 0; i < 4; i++) {
+        const p = colPre[i] + w[i];
+        if (p.length < 4 ? !PREFIXES.has(p) : !DICT.has(p)) continue outer;
+      }
+      rowsSol.push(w);
+      if (dfs(r + 1, colPre.map((p, i) => p + w[i]))) return true;
+      rowsSol.pop();
+    }
+    return false;
+  }
+  const found = dfs(0, ['', '', '', '']);
+  return { sol: found ? rowsSol.slice() : null, exhausted: exhausted };
+}
+
+const hintMsg = document.getElementById('hintmsg');
+const HINT_MAX = 3;
+let hintsUsed = 0;
+let hintedMask = new Set(); // cells whose letters came from hints and survived
+let assistUsed = false;     // was Extra Help ever on while this attempt had letters?
+function paintHints() {
+  const left = HINT_MAX - hintsUsed;
+  const el = document.getElementById('hintcount');
+  el.textContent = left === 0 ? 'No hints left' : left + (left === 1 ? ' hint' : ' hints') + ' left';
+  el.className = left === 0 ? 'spent' : '';
+}
+paintHints();
+function runHint() {
+  hintMsg.textContent = ''; hintMsg.className = '';
+  if (solved) { hintMsg.textContent = 'Already solved.'; return; }
+  if (hintsUsed >= HINT_MAX) return; // counter already says so, in red
+  const res = findCompletion({ unique: true });
+  if (!res.sol) {
+    if (res.exhausted) {
+      hintMsg.textContent = 'Dead end. Change a letter.';
+    } else {
+      const any = findCompletion({});
+      hintMsg.textContent = any.sol
+        ? 'Only squares you already own fit these letters.'
+        : 'Dead end. Change a letter.';
+    }
+    hintMsg.className = 'bad';
+    hintsUsed++;              // the solver's verdict is the hint you paid for
+    paintHints();
+    scheduleAttemptSave();
+    return;
+  }
+  // place the letter in the empty cell whose row and column are most filled
+  let best = null, bestScore = -1;
+  for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) {
+    if (at(r, c).value) continue;
+    let filled = 0;
+    for (let k = 0; k < 4; k++) { if (at(r, k).value) filled++; if (at(k, c).value) filled++; }
+    if (filled > bestScore) { bestScore = filled; best = [r, c]; }
+  }
+  if (!best) { hintMsg.textContent = 'The grid is full. Fix a letter instead.'; hintMsg.className = ''; return; }
+  const [r, c] = best;
+  at(r, c).value = res.sol[r][c].toUpperCase();
+  hintedMask.add(r * 4 + c);
+  hintsUsed++;
+  paintHints();
+  startTimer();
+  validate();
+  scheduleAttemptSave();
+}
+document.getElementById('hintbtn').addEventListener('click', runHint);
+
+// restore an unfinished square (letters + clock) from a previous visit
+kvGet(ATTEMPT_KEY).then(v => {
+  if (!v) return;
+  let a; try { a = JSON.parse(v); } catch (e) { return; }
+  if (!a || typeof a.g !== 'string' || a.g.length !== 16) return;
+  for (let i = 0; i < 16; i++) if (a.g[i] !== '.') cells[i].value = a.g[i];
+  elapsedMs = Math.max(0, a.ms || 0);
+  hintsUsed = a.h || 0;
+  hintedMask = new Set(a.hm || []);
+  assistUsed = !!a.e;
+  paintHints();
+  if (/[A-Z]/i.test(a.g) || elapsedMs > 0 || hintsUsed > 0) {
+    timing = true;
+    paintTimer();
+    validate();
+    resumeTimer();
+  }
+});
+
+validate();
+at(0, 0).focus();
+</script>
+</body>
+</html>
